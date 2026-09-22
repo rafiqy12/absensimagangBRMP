@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Camera, MapPin, Clock, Calendar, LogOut, CheckCircle2, User, AlertCircle, History, Send } from 'lucide-react';
+import logoBrmp from './assets/logo-brmp.png';
 import CameraCapture from './components/CameraCapture';
 import LocationDetector from './components/LocationDetector';
 import AttendanceForm from './components/AttendanceForm';
@@ -166,12 +167,15 @@ export default function App() {
       {/* Header Bar */}
       <header className="app-header">
         <div className="brand-wrapper">
-          <div className="brand-icon">
-            <Camera size={24} />
-          </div>
+          <img 
+            src={logoBrmp} 
+            alt="Logo BRMP Kementerian Pertanian" 
+            className="brand-logo-img" 
+          />
           <div>
-            <h1 className="brand-title">Presensi Magang</h1>
-            <p className="brand-subtitle">Live Selfie & Geolocation Tracking</p>
+            <div className="brand-tag">KEMENTERIAN PERTANIAN RI</div>
+            <h1 className="brand-title">Presensi Magang BRMP</h1>
+            <p className="brand-subtitle">Badan Riset & Penerapan Standar Instrumen Pertanian</p>
           </div>
         </div>
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UserCheck, UserPlus, ArrowRight, Sparkles, Building, Briefcase } from 'lucide-react';
+import logoBrmp from '../assets/logo-brmp.png';
 
 export default function LoginModal({ onLoginSuccess, showToast }) {
   const [isRegister, setIsRegister] = useState(false);
@@ -101,27 +102,28 @@ export default function LoginModal({ onLoginSuccess, showToast }) {
     <div style={{ maxWidth: 480, margin: '2rem auto' }}>
       <div className="card" style={{ padding: '2rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-          <div style={{
-            width: 56,
-            height: 56,
-            borderRadius: 16,
-            background: 'linear-gradient(135deg, #4f46e5, #06b6d4)',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            marginBottom: '1rem',
-            boxShadow: '0 8px 20px rgba(79, 70, 229, 0.3)'
-          }}>
-            {isRegister ? <UserPlus size={28} /> : <UserCheck size={28} />}
+          <div style={{ marginBottom: '0.85rem' }}>
+            <img 
+              src={logoBrmp} 
+              alt="Logo BRMP Kementerian Pertanian" 
+              style={{
+                width: 72,
+                height: 72,
+                objectFit: 'contain',
+                filter: 'drop-shadow(0 6px 16px rgba(234, 179, 8, 0.45))'
+              }}
+            />
+          </div>
+          <div className="brand-tag" style={{ marginBottom: '0.4rem' }}>
+            KEMENTERIAN PERTANIAN REPUBLIK INDONESIA
           </div>
           <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>
-            {isRegister ? 'Pendaftaran Anak Magang' : 'Portal Presensi Magang'}
+            {isRegister ? 'Pendaftaran Anak Magang' : 'Presensi Magang BRMP'}
           </h2>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
+          <p style={{ fontSize: '0.84rem', color: 'var(--text-subtle)', marginTop: '0.35rem' }}>
             {isRegister 
-              ? 'Daftarkan data Anda untuk memulai presensi dengan foto selfie' 
-              : 'Silakan masukkan NIM Anda untuk melakukan presensi harian'}
+              ? 'Lengkapi data Anda untuk mendaftar presensi magang di lingkungan BRMP Kementan' 
+              : 'Silakan masukkan NIM Anda untuk verifikasi presensi harian dengan kamera selfie'}
           </p>
         </div>
 

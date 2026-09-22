@@ -53,10 +53,10 @@ try {
     if ($stmt->fetch()['count'] == 0) {
         $seedStmt = $pdo->prepare("INSERT INTO students (nim, name, institution, division) VALUES (?, ?, ?, ?)");
         $seeds = [
-            ['2024001', 'Budi Santoso', 'Universitas Indonesia', 'Software Engineer'],
-            ['2024002', 'Siti Rahmawati', 'Institut Teknologi Bandung', 'UI/UX Designer'],
-            ['2024003', 'Rizky Pratama', 'Universitas Gadjah Mada', 'Digital Marketing'],
-            ['2024004', 'Putri Ayu Lestari', 'Politeknik Negeri Jakarta', 'Content Creator'],
+            ['2024001', 'Budi Santoso', 'IPB University', 'Standardisasi & Pengujian Mutu'],
+            ['2024002', 'Siti Rahmawati', 'Universitas Gadjah Mada', 'Laboratorium Benih & Instrumen'],
+            ['2024003', 'Rizky Pratama', 'Institut Teknologi Bandung', 'Teknologi Informasi & Data'],
+            ['2024004', 'Putri Ayu Lestari', 'Politeknik Pembangunan Pertanian (Polbangtan)', 'Diseminasi Standar Pertanian'],
         ];
         foreach ($seeds as $s) {
             $seedStmt->execute($s);
