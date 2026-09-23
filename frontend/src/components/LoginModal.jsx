@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UserCheck, UserPlus, ArrowRight, Sparkles, Building, Briefcase } from 'lucide-react';
+import { UserCheck, UserPlus, ArrowRight, Sparkles, Building, Briefcase, GraduationCap, KeyRound, ChevronRight, User } from 'lucide-react';
 import logoBrmp from '../assets/logo-brmp.png';
 
 export default function LoginModal({ onLoginSuccess, showToast }) {
@@ -11,7 +11,7 @@ export default function LoginModal({ onLoginSuccess, showToast }) {
   const [loading, setLoading] = useState(false);
   const [demoStudents, setDemoStudents] = useState([]);
 
-  // Fetch student list for easy demo testing
+  // Fetch student list for quick demo testing
   useEffect(() => {
     fetch('api.php?action=get_students')
       .then(res => res.json())
@@ -54,7 +54,7 @@ export default function LoginModal({ onLoginSuccess, showToast }) {
       }
     } catch (err) {
       setLoading(false);
-      showToast('Terjadi kesalahan jaringan.', 'error');
+      showToast('Terjadi kesalahan jaringan saat login.', 'error');
     }
   };
 
@@ -99,90 +99,119 @@ export default function LoginModal({ onLoginSuccess, showToast }) {
   };
 
   return (
-    <div style={{ maxWidth: 480, margin: '2rem auto' }}>
-      <div className="card" style={{ padding: '2rem' }}>
-        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-          <div style={{ marginBottom: '0.85rem' }}>
-            <img 
-              src={logoBrmp} 
-              alt="Logo BRMP Kementerian Pertanian" 
-              style={{
-                width: 72,
-                height: 72,
-                objectFit: 'contain',
-                filter: 'drop-shadow(0 6px 16px rgba(234, 179, 8, 0.45))'
-              }}
-            />
+    <div className="auth-wrapper">
+      <div className="card auth-card">
+        {/* Brand / Portal Header */}
+        <div className="auth-header">
+          <img 
+            src={logoBrmp} 
+            alt="Logo BRMP Kementerian Pertanian" 
+            className="auth-logo-img" 
+          />
+          <div>
+            <div className="brand-tag">KEMENTERIAN PERTANIAN RI</div>
+            <h2 className="auth-title">
+              {isRegister ? 'Pendaftaran Anak Magang' : 'Portal Presensi Magang'}
+            </h2>
+            <p className="auth-desc">
+              {isRegister 
+                ? 'Lengkapi data identitas untuk mendaftar sebagai peserta magang di lingkungan BRMP.' 
+                : 'Sistem presensi modern berbasis verifikasi kamera live selfie & titik koordinat GPS.'}
+            </p>
           </div>
-          <div className="brand-tag" style={{ marginBottom: '0.4rem' }}>
-            KEMENTERIAN PERTANIAN REPUBLIK INDONESIA
-          </div>
-          <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>
-            {isRegister ? 'Pendaftaran Anak Magang' : 'Presensi Magang BRMP'}
-          </h2>
-          <p style={{ fontSize: '0.84rem', color: 'var(--text-subtle)', marginTop: '0.35rem' }}>
-            {isRegister 
-              ? 'Lengkapi data Anda untuk mendaftar presensi magang di lingkungan BRMP Kementan' 
-              : 'Silakan masukkan NIM Anda untuk verifikasi presensi harian dengan kamera selfie'}
-          </p>
         </div>
 
         {!isRegister ? (
           /* FORM LOGIN */
           <form onSubmit={handleLogin}>
             <div className="form-group">
-              <label className="form-label">Nomor Induk Mahasiswa / Siswa (NIM)</label>
-              <input
-                type="text"
-                value={nim}
-                onChange={(e) => setNim(e.target.value)}
-                placeholder="Contoh: 2024001"
-                required
-                autoFocus
-                className="form-input"
-              />
+              <label className="form-label">
+                <KeyRound size={15} style={{ color: 'var(--kementan-gold)' }} />
+                Nomor Induk Mahasiswa / Siswa (NIM)
+              </label>
+              <div className="input-icon-wrapper">
+                <UserCheck size={18} className="input-icon" />
+                <input
+                  type="text"
+                  value={nim}
+                  onChange={(e) => setNim(e.target.value)}
+                  placeholder="Masukkan NIM Anda (contoh: 2024001)"
+                  required
+                  autoFocus
+                  className="form-input"
+                />
+              </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
               className="btn-primary"
-              style={{ marginTop: '0.5rem' }}
             >
-              {loading ? 'Memeriksa NIM...' : 'Masuk ke Portal Presensi'}
-              <ArrowRight size={18} />
+              {loading ? (
+                <>
+                  <span className="pulse-dot" />
+                  <span>Memverifikasi NIM...</span>
+                </>
+              ) : (
+                <>
+                  <span>Masuk ke Portal Presensi</span>
+                  <ArrowRight size={18} />
+                </>
+              )}
             </button>
 
-            {/* Quick Demo Pill Selector */}
+            {/* Quick Demo Selector */}
             {demoStudents.length > 0 && (
-              <div style={{ marginTop: '1.5rem', borderTop: '1px solid var(--border)', paddingTop: '1.25rem' }}>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.5rem' }}>
-                  <Sparkles size={14} style={{ color: '#fbbf24' }} />
-                  <span>Akun Demo Cepat (Klik untuk memilih):</span>
+              <div className="demo-section">
+                <div className="demo-title">
+                  <Sparkles size={15} style={{ color: 'var(--kementan-gold)' }} />
+                  <span>Pilihan Akun Demo (Klik untuk mengisi cepat):</span>
                 </div>
-                <div className="demo-pills">
-                  {demoStudents.map((stu) => (
+                <div className="demo-chips">
+                  {demoStudents.slice(0, 4).map((stu) => (
                     <button
                       key={stu.nim}
                       type="button"
                       onClick={() => selectDemoNim(stu.nim)}
-                      className="demo-pill"
+                      className="demo-chip"
                     >
-                      {stu.nim} - {stu.name.split(' ')[0]} ({stu.division})
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <div className="demo-chip-avatar">
+                          {stu.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff' }}>
+                            {stu.name}
+                          </div>
+                          <div style={{ fontSize: '0.72rem', color: 'var(--text-subtle)' }}>
+                            NIM: {stu.nim} • {stu.division}
+                          </div>
+                        </div>
+                      </div>
+                      <ChevronRight size={16} style={{ color: 'var(--text-subtle)', flexShrink: 0 }} />
                     </button>
                   ))}
                 </div>
               </div>
             )}
 
-            <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              NIM Anda belum terdaftar?{' '}
+            <div style={{ textAlign: 'center', marginTop: '1.6rem', fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
+              NIM belum terdaftar di sistem?{' '}
               <button
                 type="button"
                 onClick={() => setIsRegister(true)}
-                style={{ background: 'none', border: 'none', color: '#818cf8', fontWeight: 600, cursor: 'pointer' }}
+                style={{ 
+                  background: 'none', 
+                  border: 'none', 
+                  color: 'var(--kementan-gold)', 
+                  fontWeight: 700, 
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  textUnderlineOffset: '3px'
+                }}
               >
-                Daftar Baru
+                Daftar Magang Baru
               </button>
             </div>
           </form>
@@ -190,49 +219,74 @@ export default function LoginModal({ onLoginSuccess, showToast }) {
           /* FORM REGISTER */
           <form onSubmit={handleRegister}>
             <div className="form-group">
-              <label className="form-label">NIM (Nomor Induk)</label>
-              <input
-                type="text"
-                value={nim}
-                onChange={(e) => setNim(e.target.value)}
-                placeholder="Contoh: 2024005"
-                required
-                className="form-input"
-              />
+              <label className="form-label">
+                <KeyRound size={15} style={{ color: 'var(--kementan-gold)' }} />
+                Nomor Induk Mahasiswa (NIM)
+              </label>
+              <div className="input-icon-wrapper">
+                <UserCheck size={18} className="input-icon" />
+                <input
+                  type="text"
+                  value={nim}
+                  onChange={(e) => setNim(e.target.value)}
+                  placeholder="Contoh: 2024005"
+                  required
+                  autoFocus
+                  className="form-input"
+                />
+              </div>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Nama Lengkap</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Contoh: Muhammad Akbar"
-                required
-                className="form-input"
-              />
+              <label className="form-label">
+                <User size={15} style={{ color: 'var(--kementan-gold)' }} />
+                Nama Lengkap
+              </label>
+              <div className="input-icon-wrapper">
+                <User size={18} className="input-icon" />
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Contoh: Muhammad Fikri"
+                  required
+                  className="form-input"
+                />
+              </div>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Asal Kampus / Sekolah</label>
-              <input
-                type="text"
-                value={institution}
-                onChange={(e) => setInstitution(e.target.value)}
-                placeholder="Contoh: Universitas Indonesia"
-                className="form-input"
-              />
+              <label className="form-label">
+                <Building size={15} style={{ color: 'var(--kementan-gold)' }} />
+                Asal Kampus / Sekolah
+              </label>
+              <div className="input-icon-wrapper">
+                <GraduationCap size={18} className="input-icon" />
+                <input
+                  type="text"
+                  value={institution}
+                  onChange={(e) => setInstitution(e.target.value)}
+                  placeholder="Contoh: Institut Pertanian Bogor (IPB)"
+                  className="form-input"
+                />
+              </div>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Divisi / Bagian Magang</label>
-              <input
-                type="text"
-                value={division}
-                onChange={(e) => setDivision(e.target.value)}
-                placeholder="Contoh: IT Support / Backend"
-                className="form-input"
-              />
+              <label className="form-label">
+                <Briefcase size={15} style={{ color: 'var(--kementan-gold)' }} />
+                Divisi / Bidang Magang
+              </label>
+              <div className="input-icon-wrapper">
+                <Briefcase size={18} className="input-icon" />
+                <input
+                  type="text"
+                  value={division}
+                  onChange={(e) => setDivision(e.target.value)}
+                  placeholder="Contoh: Standardisasi Mutu Pertanian"
+                  className="form-input"
+                />
+              </div>
             </div>
 
             <button
@@ -241,18 +295,35 @@ export default function LoginModal({ onLoginSuccess, showToast }) {
               className="btn-primary"
               style={{ marginTop: '0.5rem' }}
             >
-              {loading ? 'Mendaftarkan...' : 'Daftar & Masuk Sekarang'}
-              <ArrowRight size={18} />
+              {loading ? (
+                <>
+                  <span className="pulse-dot" />
+                  <span>Mendaftarkan...</span>
+                </>
+              ) : (
+                <>
+                  <span>Daftar & Masuk Sekarang</span>
+                  <ArrowRight size={18} />
+                </>
+              )}
             </button>
 
-            <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              Sudah pernah terdaftar?{' '}
+            <div style={{ textAlign: 'center', marginTop: '1.6rem', fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
+              Sudah memiliki akun terdaftar?{' '}
               <button
                 type="button"
                 onClick={() => setIsRegister(false)}
-                style={{ background: 'none', border: 'none', color: '#818cf8', fontWeight: 600, cursor: 'pointer' }}
+                style={{ 
+                  background: 'none', 
+                  border: 'none', 
+                  color: 'var(--kementan-gold)', 
+                  fontWeight: 700, 
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  textUnderlineOffset: '3px'
+                }}
               >
-                Kembali ke Login
+                Kembali ke Halaman Login
               </button>
             </div>
           </form>

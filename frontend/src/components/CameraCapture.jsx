@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, RefreshCw, CheckCircle2, AlertCircle, Video, VideoOff } from 'lucide-react';
+import { Camera, RefreshCw, AlertCircle, Video, VideoOff } from 'lucide-react';
 
 export default function CameraCapture({ onPhotoCaptured, capturedPhoto, onRetake }) {
   const [streamActive, setStreamActive] = useState(false);
@@ -70,7 +70,7 @@ export default function CameraCapture({ onPhotoCaptured, capturedPhoto, onRetake
 
     // Trigger visual shutter flash
     setIsFlashing(true);
-    setTimeout(() => setIsFlashing(false), 200);
+    setTimeout(() => setIsFlashing(false), 220);
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -81,6 +81,7 @@ export default function CameraCapture({ onPhotoCaptured, capturedPhoto, onRetake
 
     const ctx = canvas.getContext('2d');
     
+    ctx.save();
     // Invert horizontal axis if front camera to maintain natural mirror preview
     if (facingMode === 'user') {
       ctx.translate(canvas.width, 0);
@@ -88,9 +89,10 @@ export default function CameraCapture({ onPhotoCaptured, capturedPhoto, onRetake
     }
 
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx.restore();
 
     // Export high-quality JPEG
-    const photoDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    const photoDataUrl = canvas.toDataURL('image/jpeg', 0.92);
     
     // Stop live stream after capture
     stopCamera();
@@ -130,8 +132,8 @@ export default function CameraCapture({ onPhotoCaptured, capturedPhoto, onRetake
               style={{ transform: 'none' }} // Canvas already inverted for mirror
             />
             <div className="camera-status-badge">
-              <span className="pulse-dot" style={{ background: '#10b981' }} />
-              Foto Selfie Siap
+              <span className="pulse-dot" />
+              <span>FOTO SELFIE SIAP</span>
             </div>
           </div>
         ) : streamActive ? (
@@ -146,32 +148,36 @@ export default function CameraCapture({ onPhotoCaptured, capturedPhoto, onRetake
             />
             <div className="camera-status-badge">
               <span className="pulse-dot pulse-red" />
-              ● KAMERA AKTIF (LIVE)
+              <span>KAMERA LIVE AKTIF</span>
             </div>
 
             {/* Oval Face Guide Overlay */}
             <div className="face-guide-overlay">
-              <span className="face-guide-text">Arahkan wajah Anda ke dalam oval</span>
+              <span className="face-guide-text">
+                Posisikan wajah di dalam oval
+              </span>
             </div>
           </div>
         ) : (
           /* 3. Camera Off / Placeholder */
           <div className="camera-placeholder">
             <div className="camera-placeholder-icon">
-              <Camera size={32} />
+              <Camera size={34} />
             </div>
-            <h4 style={{ color: '#fff', marginBottom: '0.4rem', fontWeight: 600 }}>Kamera Belum Aktif</h4>
-            <p style={{ fontSize: '0.82rem', color: '#94a3b8', maxWidth: '300px', marginBottom: '1.25rem' }}>
-              Foto selfie hanya dapat diambil secara langsung via kamera perangkat. Upload dari galeri tidak diperbolehkan.
+            <h4 style={{ color: '#fff', marginBottom: '0.4rem', fontWeight: 800, fontSize: '1.05rem', letterSpacing: '-0.01em' }}>
+              Kamera Belum Aktif
+            </h4>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-subtle)', maxWidth: '320px', marginBottom: '1.35rem', lineHeight: 1.45 }}>
+              Sistem presensi mewajibkan foto selfie yang diambil langsung secara live untuk menjamin validitas kehadiran.
             </p>
             <button 
               type="button" 
               onClick={() => startCamera()} 
               className="btn-primary" 
-              style={{ width: 'auto', padding: '0.75rem 1.5rem' }}
+              style={{ width: 'auto', padding: '0.75rem 1.6rem' }}
             >
               <Video size={18} />
-              Aktifkan Kamera Sekarang
+              <span>Aktifkan Kamera Sekarang</span>
             </button>
           </div>
         )}
@@ -180,16 +186,16 @@ export default function CameraCapture({ onPhotoCaptured, capturedPhoto, onRetake
       {/* Error Message */}
       {cameraError && (
         <div style={{ 
-          marginTop: '0.75rem', 
-          padding: '0.75rem 1rem', 
-          background: 'rgba(239, 68, 68, 0.15)', 
-          border: '1px solid rgba(239, 68, 68, 0.3)', 
-          borderRadius: '10px',
-          color: '#fca5a5',
+          marginTop: '0.85rem', 
+          padding: '0.85rem 1rem', 
+          background: 'var(--danger-subtle)', 
+          border: '1px solid var(--danger-border)', 
+          borderRadius: 'var(--radius-sm)',
+          color: 'var(--danger-light)',
           fontSize: '0.82rem',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.5rem'
+          gap: '0.6rem'
         }}>
           <AlertCircle size={18} style={{ flexShrink: 0 }} />
           <span>{cameraError}</span>
@@ -197,7 +203,7 @@ export default function CameraCapture({ onPhotoCaptured, capturedPhoto, onRetake
       )}
 
       {/* Camera Action Controls */}
-      <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+      <div style={{ marginTop: '1.15rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.85rem' }}>
         {capturedPhoto ? (
           <button 
             type="button" 
@@ -205,17 +211,16 @@ export default function CameraCapture({ onPhotoCaptured, capturedPhoto, onRetake
             className="btn-secondary" 
             style={{ width: '100%', justifyContent: 'center' }}
           >
-            <RefreshCw size={17} />
-            Ambil Ulang Foto Selfie
+            <RefreshCw size={16} />
+            <span>Ambil Ulang Foto Selfie</span>
           </button>
         ) : streamActive ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
             <button
               type="button"
               onClick={switchCamera}
-              className="btn-secondary"
+              className="btn-secondary btn-circle"
               title="Ganti Kamera Depan/Belakang"
-              style={{ borderRadius: '50%', width: '48px', height: '48px', padding: 0 }}
             >
               <RefreshCw size={18} />
             </button>
@@ -232,9 +237,8 @@ export default function CameraCapture({ onPhotoCaptured, capturedPhoto, onRetake
             <button
               type="button"
               onClick={stopCamera}
-              className="btn-secondary"
+              className="btn-secondary btn-circle"
               title="Matikan Kamera"
-              style={{ borderRadius: '50%', width: '48px', height: '48px', padding: 0 }}
             >
               <VideoOff size={18} />
             </button>

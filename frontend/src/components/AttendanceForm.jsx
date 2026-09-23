@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LogIn, LogOut, CheckCircle2, Lock, Send, FileText, AlertCircle } from 'lucide-react';
+import { LogIn, LogOut, CheckCircle2, Lock, Send, FileText, AlertCircle, ShieldAlert, Sparkles, Check, X } from 'lucide-react';
 
 export default function AttendanceForm({
   todayStatus,
@@ -29,7 +29,7 @@ export default function AttendanceForm({
 
   return (
     <form onSubmit={handleSubmit} className="attendance-form">
-      {/* 1. Tipe Presensi Selector */}
+      {/* 1. Tipe Presensi Selector (Segmented Control) */}
       <div className="type-selector">
         <button
           type="button"
@@ -37,7 +37,7 @@ export default function AttendanceForm({
           className={`type-btn type-masuk ${type === 'masuk' ? 'active' : ''}`}
         >
           <LogIn size={18} />
-          Presensi Masuk
+          <span>Presensi Masuk</span>
         </button>
 
         <button
@@ -46,79 +46,93 @@ export default function AttendanceForm({
           className={`type-btn type-pulang ${type === 'pulang' ? 'active' : ''}`}
         >
           <LogOut size={18} />
-          Presensi Pulang
+          <span>Presensi Pulang</span>
         </button>
       </div>
 
       {/* 2. Status Kehadiran Hari Ini */}
-      <div style={{
-        background: 'rgba(255, 255, 255, 0.03)',
-        border: '1px solid var(--border)',
-        borderRadius: 'var(--radius-md)',
-        padding: '0.85rem 1.15rem',
-        marginBottom: '1.25rem',
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '0.75rem'
-      }}>
-        <div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>Status Masuk Hari Ini:</span>
+      <div className="status-today-grid">
+        <div className="status-today-item">
+          <span className="status-today-label">Status Masuk Hari Ini</span>
           {todayStatus?.has_masuk ? (
-            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34d399', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <CheckCircle2 size={15} /> Tercatat ({todayStatus.has_masuk.created_at.split(' ')[1]?.slice(0, 5)} WIB)
+            <span className="status-today-val" style={{ color: 'var(--success-light)' }}>
+              <CheckCircle2 size={16} />
+              <span>Tercatat ({todayStatus.has_masuk.created_at.split(' ')[1]?.slice(0, 5)} WIB)</span>
             </span>
           ) : (
-            <span style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 500 }}>Belum Absen Masuk</span>
+            <span className="status-today-val" style={{ color: 'var(--text-subtle)' }}>
+              <span>○ Belum Absen Masuk</span>
+            </span>
           )}
         </div>
 
-        <div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>Status Pulang Hari Ini:</span>
+        <div className="status-today-item">
+          <span className="status-today-label">Status Pulang Hari Ini</span>
           {todayStatus?.has_pulang ? (
-            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fb923c', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <CheckCircle2 size={15} /> Tercatat ({todayStatus.has_pulang.created_at.split(' ')[1]?.slice(0, 5)} WIB)
+            <span className="status-today-val" style={{ color: 'var(--warning-light)' }}>
+              <CheckCircle2 size={16} />
+              <span>Tercatat ({todayStatus.has_pulang.created_at.split(' ')[1]?.slice(0, 5)} WIB)</span>
             </span>
           ) : (
-            <span style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 500 }}>Belum Absen Pulang</span>
+            <span className="status-today-val" style={{ color: 'var(--text-subtle)' }}>
+              <span>○ Belum Absen Pulang</span>
+            </span>
           )}
         </div>
       </div>
 
       {/* 3. Catatan / Rencana Kegiatan */}
       <div className="form-group">
-        <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-          <FileText size={15} style={{ color: 'var(--text-muted)' }} />
-          Catatan / Rencana Kegiatan Hari Ini (Opsional)
+        <label className="form-label">
+          <FileText size={15} style={{ color: 'var(--kementan-gold)' }} />
+          <span>Catatan / Rencana Kegiatan Harian (Opsional)</span>
         </label>
         <textarea
           rows={3}
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="Contoh: Mengerjakan modul laporan frontend dan diskusi bersama mentor..."
+          placeholder="Tuliskan aktivitas atau tugas magang hari ini (misal: pengujian instrumen laboratorium, analisis data)..."
           className="form-textarea"
         />
       </div>
 
-      {/* 4. Verifikasi Kelengkapan Presensi */}
-      <div style={{
-        background: 'rgba(15, 23, 42, 0.6)',
-        border: '1px solid var(--border)',
-        borderRadius: 'var(--radius-sm)',
-        padding: '0.75rem 1rem',
-        marginBottom: '1.25rem',
-        fontSize: '0.82rem'
-      }}>
-        <div style={{ fontWeight: 600, color: '#f8fafc', marginBottom: '0.4rem' }}>
-          Syarat Validasi Presensi:
+      {/* 4. Verifikasi Kelengkapan Presensi (Checklist) */}
+      <div className="validation-checklist">
+        <div className="validation-header">
+          <ShieldAlert size={16} style={{ color: 'var(--kementan-gold)' }} />
+          <span>Kelengkapan Syarat Presensi:</span>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: capturedPhoto ? '#34d399' : '#94a3b8' }}>
-            <span style={{ width: 14, height: 14, borderRadius: '50%', background: capturedPhoto ? '#10b981' : '#475569', display: 'inline-block' }} />
-            Foto Selfie Langsung Kamera: {capturedPhoto ? 'Sudah Diambil' : 'Belum Diambil'}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+          <div 
+            className="validation-item" 
+            style={{ color: capturedPhoto ? 'var(--success-light)' : 'var(--text-subtle)' }}
+          >
+            {capturedPhoto ? (
+              <span className="validation-indicator" style={{ background: 'var(--success)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Check size={10} color="#fff" />
+              </span>
+            ) : (
+              <span className="validation-indicator" style={{ background: 'rgba(255, 255, 255, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <X size={10} color="#94a3b8" />
+              </span>
+            )}
+            <span>Foto Selfie Kamera Langsung: {capturedPhoto ? 'Sudah Diambil' : 'Belum Diambil'}</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: locationData ? '#34d399' : '#94a3b8' }}>
-            <span style={{ width: 14, height: 14, borderRadius: '50%', background: locationData ? '#10b981' : '#475569', display: 'inline-block' }} />
-            Titik Koordinat GPS: {locationData ? 'Lokasi Terdeteksi' : 'Belum Terdeteksi'}
+
+          <div 
+            className="validation-item" 
+            style={{ color: locationData ? 'var(--success-light)' : 'var(--text-subtle)' }}
+          >
+            {locationData ? (
+              <span className="validation-indicator" style={{ background: 'var(--success)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Check size={10} color="#fff" />
+              </span>
+            ) : (
+              <span className="validation-indicator" style={{ background: 'rgba(255, 255, 255, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <X size={10} color="#94a3b8" />
+              </span>
+            )}
+            <span>Titik Koordinat GPS: {locationData ? 'Lokasi Terverifikasi' : 'Belum Terdeteksi'}</span>
           </div>
         </div>
       </div>
@@ -131,30 +145,35 @@ export default function AttendanceForm({
         style={{
           background: isReady 
             ? (type === 'masuk' 
-                ? 'linear-gradient(135deg, #10b981, #059669)' 
-                : 'linear-gradient(135deg, #f97316, #ea580c)')
+                ? 'linear-gradient(135deg, #16a34a, #15803d)' 
+                : 'linear-gradient(135deg, #ea580c, #c2410c)')
+            : undefined,
+          boxShadow: isReady 
+            ? (type === 'masuk' 
+                ? '0 4px 18px rgba(34, 197, 94, 0.35)' 
+                : '0 4px 18px rgba(234, 88, 12, 0.35)') 
             : undefined
         }}
       >
         {submitting ? (
           <>
             <span className="pulse-dot" />
-            Mengirim Presensi...
+            <span>Mengirim Data Presensi...</span>
           </>
         ) : !capturedPhoto ? (
           <>
             <Lock size={18} />
-            Ambil Foto Selfie Terlebih Dahulu
+            <span>Ambil Foto Selfie Terlebih Dahulu</span>
           </>
         ) : !locationData ? (
           <>
             <Lock size={18} />
-            Menunggu Deteksi Lokasi GPS...
+            <span>Menunggu Deteksi Titik GPS...</span>
           </>
         ) : (
           <>
             <Send size={18} />
-            Kirim Presensi {type === 'masuk' ? 'Masuk' : 'Pulang'} Sekarang
+            <span>Kirim Presensi {type === 'masuk' ? 'Masuk' : 'Pulang'} Sekarang</span>
           </>
         )}
       </button>

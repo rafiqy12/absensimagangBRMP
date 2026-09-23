@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, RefreshCw, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { MapPin, RefreshCw, CheckCircle2, AlertTriangle, Crosshair, Navigation } from 'lucide-react';
 
 export default function LocationDetector({ onLocationDetected, locationData }) {
   const [loading, setLoading] = useState(false);
@@ -34,11 +34,11 @@ export default function LocationDetector({ onLocationDetected, locationData }) {
         console.warn('Gagal mendapatkan lokasi GPS:', err);
         let msg = 'Gagal mendeteksi lokasi.';
         if (err.code === 1) {
-          msg = 'Izin lokasi ditolak. Harap aktifkan izin lokasi di browser Anda.';
+          msg = 'Izin akses lokasi ditolak. Silakan berikan izin lokasi pada ikon gembok browser.';
         } else if (err.code === 2) {
           msg = 'Sinyal lokasi tidak tersedia.';
         } else if (err.code === 3) {
-          msg = 'Waktu permintaan lokasi habis (timeout).';
+          msg = 'Waktu permintaan lokasi habis (timeout). Silakan klik perbarui.';
         }
         setError(msg);
       },
@@ -60,41 +60,54 @@ export default function LocationDetector({ onLocationDetected, locationData }) {
   return (
     <div className="location-card">
       <div className="location-info">
-        <div className="location-icon" style={{ 
-          background: locationData ? 'rgba(16, 185, 129, 0.15)' : error ? 'rgba(239, 68, 68, 0.15)' : 'rgba(56, 189, 248, 0.15)',
-          color: locationData ? '#10b981' : error ? '#ef4444' : '#38bdf8'
-        }}>
+        <div 
+          className="location-icon" 
+          style={{ 
+            background: locationData 
+              ? 'var(--success-subtle)' 
+              : error 
+                ? 'var(--danger-subtle)' 
+                : 'var(--info-subtle)',
+            color: locationData 
+              ? 'var(--success-light)' 
+              : error 
+                ? 'var(--danger-light)' 
+                : 'var(--info-light)'
+          }}
+        >
           <MapPin size={20} />
         </div>
 
         <div>
-          <div className="location-title" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span>Lokasi Presensi</span>
-            {locationData && (
-              <span style={{ 
-                fontSize: '0.72rem', 
-                color: '#34d399', 
-                background: 'rgba(16, 185, 129, 0.15)', 
-                padding: '0.15rem 0.5rem', 
-                borderRadius: '999px',
-                fontWeight: 700 
-              }}>
-                Terdeteksi
+          <div className="location-title">
+            <span>Titik Lokasi GPS</span>
+            {locationData ? (
+              <span className="badge badge-masuk">
+                <CheckCircle2 size={12} />
+                Terverifikasi
+              </span>
+            ) : error ? (
+              <span className="badge" style={{ background: 'var(--danger-subtle)', color: 'var(--danger-light)', border: '1px solid var(--danger-border)' }}>
+                Perlu Izin
+              </span>
+            ) : (
+              <span className="badge badge-gold">
+                Mencari GPS
               </span>
             )}
           </div>
 
           <div className="location-coords">
             {loading ? (
-              <span style={{ color: '#fbbf24' }}>Mencari sinyal GPS koordinat...</span>
+              <span style={{ color: 'var(--kementan-gold)' }}>Menghubungkan ke satelit GPS...</span>
             ) : locationData ? (
               <span>
-                Lat: {locationData.latitude}, Lng: {locationData.longitude} (Akurasi: ±{locationData.accuracy}m)
+                {locationData.latitude}, {locationData.longitude} (Akurasi: ±{locationData.accuracy}m)
               </span>
             ) : error ? (
-              <span style={{ color: '#f87171' }}>{error}</span>
+              <span style={{ color: 'var(--danger-light)' }}>{error}</span>
             ) : (
-              <span>Menunggu izin akses lokasi browser...</span>
+              <span>Menunggu respons lokasi dari browser...</span>
             )}
           </div>
         </div>
@@ -105,11 +118,11 @@ export default function LocationDetector({ onLocationDetected, locationData }) {
         onClick={requestLocation}
         disabled={loading}
         className="btn-secondary"
-        style={{ padding: '0.45rem 0.8rem', fontSize: '0.78rem' }}
+        style={{ padding: '0.5rem 0.85rem', fontSize: '0.8rem', flexShrink: 0 }}
         title="Perbarui Koordinat GPS"
       >
         <RefreshCw size={14} className={loading ? 'spin' : ''} />
-        {loading ? 'Mendeteksi...' : 'Perbarui'}
+        <span>{loading ? 'Mendeteksi...' : 'Perbarui'}</span>
       </button>
     </div>
   );

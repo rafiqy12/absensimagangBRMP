@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, MapPin, Clock, Calendar, LogOut, CheckCircle2, User, AlertCircle, History, Send } from 'lucide-react';
+import { Camera, Clock, LogOut, CheckCircle2, AlertCircle, History, Send, ShieldCheck, Sparkles } from 'lucide-react';
 import logoBrmp from './assets/logo-brmp.png';
 import CameraCapture from './components/CameraCapture';
 import LocationDetector from './components/LocationDetector';
@@ -60,6 +60,15 @@ export default function App() {
     checkAuth();
   }, []);
 
+  // Sync body background class for auth page (#F5F7F5)
+  useEffect(() => {
+    if (!student) {
+      document.body.classList.add('auth-bg');
+    } else {
+      document.body.classList.remove('auth-bg');
+    }
+  }, [student]);
+
   // 3. Fetch Today's Attendance Status
   const fetchTodayStatus = async () => {
     if (!student) return;
@@ -87,9 +96,9 @@ export default function App() {
       setStudent(null);
       setCapturedPhoto(null);
       setLocationData(null);
-      showToast('Anda telah keluar dari sesi presensi.', 'info');
+      showToast('Anda telah berhasil keluar dari sesi.', 'info');
     } catch (e) {
-      showToast('Gagal logout', 'error');
+      showToast('Gagal logout dari sistem.', 'error');
     }
   };
 
@@ -108,10 +117,10 @@ export default function App() {
 
       if (data.success) {
         showToast(data.message, 'success');
-        // Reset selfie state so they can't duplicate without new live shot
+        // Reset selfie state so duplicate submission without fresh live shot is prevented
         setCapturedPhoto(null);
         fetchTodayStatus();
-        // Switch to history tab to show their attendance log
+        // Switch to history tab to show newly created attendance log
         setTimeout(() => {
           setActiveTab('riwayat');
         }, 1200);
@@ -120,7 +129,7 @@ export default function App() {
       }
     } catch (err) {
       setSubmitting(false);
-      showToast('Terjadi kesalahan koneksi saat mengirim presensi.', 'error');
+      showToast('Terjadi gangguan koneksi saat mengirim data presensi.', 'error');
     }
   };
 
@@ -141,10 +150,17 @@ export default function App() {
 
   if (checkingAuth) {
     return (
-      <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+      <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
-          <div className="pulse-dot" style={{ margin: '0 auto 1rem', width: 14, height: 14 }} />
-          <span>Memuat Sistem Presensi...</span>
+          <img 
+            src={logoBrmp} 
+            alt="Logo BRMP" 
+            style={{ width: 68, height: 68, objectFit: 'contain', marginBottom: '1.25rem', filter: 'drop-shadow(0 4px 14px rgba(234, 179, 8, 0.4))' }} 
+          />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', color: 'var(--text-secondary)', fontSize: '0.92rem', fontWeight: 600 }}>
+            <span className="pulse-dot" />
+            <span>Menghubungkan ke Portal Presensi BRMP...</span>
+          </div>
         </div>
       </div>
     );
@@ -152,15 +168,17 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* Toast Alert */}
+      {/* Toast Alert Notification */}
       {toast && (
-        <div className={`alert-toast ${toast.type === 'success' ? 'toast-success' : 'toast-error'}`}>
+        <div className={`alert-toast ${toast.type === 'success' ? 'toast-success' : toast.type === 'error' ? 'toast-error' : 'toast-info'}`}>
           {toast.type === 'success' ? (
-            <CheckCircle2 size={20} style={{ color: '#10b981', flexShrink: 0 }} />
+            <CheckCircle2 size={20} style={{ color: 'var(--success-light)', flexShrink: 0 }} />
+          ) : toast.type === 'error' ? (
+            <AlertCircle size={20} style={{ color: 'var(--danger-light)', flexShrink: 0 }} />
           ) : (
-            <AlertCircle size={20} style={{ color: '#ef4444', flexShrink: 0 }} />
+            <Sparkles size={20} style={{ color: 'var(--kementan-gold)', flexShrink: 0 }} />
           )}
-          <span style={{ fontSize: '0.88rem', fontWeight: 500 }}>{toast.message}</span>
+          <span style={{ fontSize: '0.88rem', fontWeight: 600 }}>{toast.message}</span>
         </div>
       )}
 
@@ -204,8 +222,8 @@ export default function App() {
                 {student.name.charAt(0).toUpperCase()}
               </div>
               <div className="user-details">
-                <span className="user-name">{student.name}</span>
-                <span className="user-nim">{student.nim}</span>
+                <span className="user-name" title={student.name}>{student.name}</span>
+                <span className="user-nim">NIM: {student.nim}</span>
               </div>
             </div>
 
@@ -222,7 +240,7 @@ export default function App() {
         )}
       </header>
 
-      {/* Main Content */}
+      {/* Main Content Area */}
       {!student ? (
         <LoginModal 
           onLoginSuccess={(stu) => {
@@ -237,17 +255,20 @@ export default function App() {
           {/* Status & Clock Banner */}
           <div className="status-banner">
             <div>
-              <div style={{ fontSize: '0.82rem', color: '#93c5fd', fontWeight: 600 }}>
-                Selamat Datang, {student.name}!
+              <div className="greeting-tag">PORTAL PRESENSI RESMI</div>
+              <div className="greeting-name">
+                Selamat Bertugas, {student.name}!
               </div>
-              <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                {student.institution} • {student.division}
+              <div className="greeting-meta">
+                <span>{student.institution}</span>
+                <span>•</span>
+                <span style={{ color: 'var(--kementan-gold)', fontWeight: 600 }}>{student.division}</span>
               </div>
             </div>
 
-            <div style={{ textAlign: 'right' }}>
+            <div>
               <div className="clock-display">
-                <Clock size={19} style={{ color: '#818cf8' }} />
+                <Clock size={20} style={{ color: 'var(--kementan-gold)' }} />
                 <span>{formatIndoTime(currentTime)}</span>
               </div>
               <div className="clock-date">
@@ -259,12 +280,12 @@ export default function App() {
           <div className="grid-cols-2">
             {/* Kolom Kiri: Kamera Live & Lokasi GPS */}
             <div className="card">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#fff', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                  <Camera size={18} style={{ color: '#818cf8' }} />
-                  Kamera Selfie Langsung
+              <div className="card-header">
+                <h3 className="card-title">
+                  <Camera size={20} style={{ color: 'var(--primary-light)' }} />
+                  <span>Kamera Selfie Langsung</span>
                 </h3>
-                <span style={{ fontSize: '0.72rem', color: '#fbbf24', background: 'rgba(245, 158, 11, 0.15)', padding: '0.2rem 0.5rem', borderRadius: '999px', fontWeight: 600 }}>
+                <span className="badge badge-gold">
                   Wajib Live
                 </span>
               </div>
@@ -293,9 +314,15 @@ export default function App() {
 
             {/* Kolom Kanan: Form Presensi & Verifikasi */}
             <div className="card">
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#fff', marginBottom: '1rem' }}>
-                Konfirmasi Data Presensi
-              </h3>
+              <div className="card-header">
+                <h3 className="card-title">
+                  <ShieldCheck size={20} style={{ color: 'var(--kementan-gold)' }} />
+                  <span>Konfirmasi Data Presensi</span>
+                </h3>
+                <span style={{ fontSize: '0.74rem', color: 'var(--text-subtle)', fontWeight: 600 }}>
+                  Langkah Terakhir
+                </span>
+              </div>
 
               <AttendanceForm
                 todayStatus={todayStatus}
