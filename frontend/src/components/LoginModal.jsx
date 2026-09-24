@@ -1,36 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { UserCheck, UserPlus, ArrowRight, Sparkles, Building, Briefcase, GraduationCap, KeyRound, ChevronRight, User } from 'lucide-react';
-import logoBrmp from '../assets/logo-brmp.png';
+import React, { useState } from 'react';
+import { UserCheck, ShieldCheck, ArrowRight, UserPlus, HelpCircle, KeyRound, Mail, Sparkles, Building2, ArrowLeft } from 'lucide-react';
 
-export default function LoginModal({ onLoginSuccess, showToast }) {
+export default function LoginModal({ onLoginSuccess, showToast, isAdminPortal = false }) {
+  // If in admin portal route, default role to admin; otherwise strictly student
+  const [role, setRole] = useState(isAdminPortal ? 'admin' : 'student');
   const [isRegister, setIsRegister] = useState(false);
+
+  // Student Login State (Page 1 PDF)
   const [nim, setNim] = useState('');
-  const [name, setName] = useState('');
-  const [institution, setInstitution] = useState('');
-  const [division, setDivision] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [demoStudents, setDemoStudents] = useState([]);
+  const [submittingStudent, setSubmittingStudent] = useState(false);
 
-  // Fetch student list for quick demo testing
-  useEffect(() => {
-    fetch('api.php?action=get_students')
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.students) {
-          setDemoStudents(data.students);
-        }
-      })
-      .catch(() => {});
-  }, []);
+  // Student Register State
+  const [regNim, setRegNim] = useState('');
+  const [regName, setRegName] = useState('');
+  const [regInstitution, setRegInstitution] = useState('PT Nusantara Digital');
+  const [regDivision, setRegDivision] = useState('UI/UX Intern');
+  const [regSupervisor, setRegSupervisor] = useState('Dian Pratiwi');
+  const [submittingReg, setSubmittingReg] = useState(false);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  // Admin Login State
+  const [adminUsername, setAdminUsername] = useState('admin');
+  const [adminPassword, setAdminPassword] = useState('admin123');
+  const [submittingAdmin, setSubmittingAdmin] = useState(false);
+
+  // 1. Submit Student Login (Page 1 PDF)
+  const handleStudentLogin = async (e) => {
+    e?.preventDefault();
     if (!nim.trim()) {
-      showToast('NIM wajib diisi!', 'error');
+      showToast('Harap masukkan Nomor Induk Mahasiswa (NIM)!', 'error');
       return;
     }
 
-    setLoading(true);
+    setSubmittingStudent(true);
     try {
       const res = await fetch('api.php?action=login', {
         method: 'POST',
@@ -39,294 +40,322 @@ export default function LoginModal({ onLoginSuccess, showToast }) {
         credentials: 'include'
       });
       const data = await res.json();
-      setLoading(false);
+      setSubmittingStudent(false);
 
-      if (data.success) {
+      if (data.success && data.student) {
         showToast(data.message, 'success');
-        onLoginSuccess(data.student);
+        onLoginSuccess({ role: 'student', data: data.student });
+      } else if (data.not_found) {
+        showToast(data.message, 'info');
+        setRegNim(nim.trim());
+        setIsRegister(true);
       } else {
-        if (data.not_found) {
-          showToast('NIM belum terdaftar. Silakan lengkapi formulir pendaftaran di bawah.', 'error');
-          setIsRegister(true);
-        } else {
-          showToast(data.message, 'error');
-        }
+        showToast(data.message || 'Login gagal.', 'error');
       }
     } catch (err) {
-      setLoading(false);
-      showToast('Terjadi kesalahan jaringan saat login.', 'error');
+      setSubmittingStudent(false);
+      showToast('Koneksi server terganggu.', 'error');
     }
   };
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    if (!nim.trim() || !name.trim()) {
+  // 2. Submit Student Register
+  const handleStudentRegister = async (e) => {
+    e?.preventDefault();
+    if (!regNim.trim() || !regName.trim()) {
       showToast('NIM dan Nama Lengkap wajib diisi!', 'error');
       return;
     }
 
-    setLoading(true);
+    setSubmittingReg(true);
     try {
       const res = await fetch('api.php?action=register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          nim: nim.trim(),
-          name: name.trim(),
-          institution: institution.trim() || 'Universitas / Sekolah',
-          division: division.trim() || 'Umum'
+          nim: regNim.trim(),
+          name: regName.trim(),
+          institution: regInstitution.trim(),
+          division: regDivision.trim(),
+          supervisor: regSupervisor.trim()
         }),
         credentials: 'include'
       });
       const data = await res.json();
-      setLoading(false);
+      setSubmittingReg(false);
 
-      if (data.success) {
+      if (data.success && data.student) {
         showToast(data.message, 'success');
-        onLoginSuccess(data.student);
+        onLoginSuccess({ role: 'student', data: data.student });
       } else {
-        showToast(data.message, 'error');
+        showToast(data.message || 'Pendaftaran gagal.', 'error');
       }
     } catch (err) {
-      setLoading(false);
-      showToast('Gagal melakukan pendaftaran.', 'error');
+      setSubmittingReg(false);
+      showToast('Koneksi server terganggu.', 'error');
     }
   };
 
-  const selectDemoNim = (demoNim) => {
-    setNim(demoNim);
-    setIsRegister(false);
+  // 3. Submit Admin Login
+  const handleAdminLogin = async (e) => {
+    e?.preventDefault();
+    if (!adminUsername.trim() || !adminPassword.trim()) {
+      showToast('Username/Email dan kata sandi admin wajib diisi!', 'error');
+      return;
+    }
+
+    setSubmittingAdmin(true);
+    try {
+      const res = await fetch('api.php?action=admin_login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: adminUsername.trim(),
+          password: adminPassword.trim()
+        }),
+        credentials: 'include'
+      });
+      const data = await res.json();
+      setSubmittingAdmin(false);
+
+      if (data.success && data.admin) {
+        showToast(data.message, 'success');
+        onLoginSuccess({ role: 'admin', data: data.admin });
+      } else {
+        showToast(data.message || 'Login admin gagal.', 'error');
+      }
+    } catch (err) {
+      setSubmittingAdmin(false);
+      showToast('Koneksi server terganggu.', 'error');
+    }
   };
 
   return (
-    <div className="auth-wrapper">
-      <div className="card auth-card">
-        {/* Brand / Portal Header */}
-        <div className="auth-header">
-          <img 
-            src={logoBrmp} 
-            alt="Logo BRMP Kementerian Pertanian" 
-            className="auth-logo-img" 
-          />
+    <div className="login-screen-wrap">
+      <div className="login-box-card">
+        {/* JIKA BERADA DI PINTU MASUK ADMIN (admin.php atau ?portal=admin) */}
+        {isAdminPortal ? (
           <div>
-            <div className="brand-tag">KEMENTERIAN PERTANIAN RI</div>
-            <h2 className="auth-title">
-              {isRegister ? 'Pendaftaran Anak Magang' : 'Portal Presensi Magang'}
-            </h2>
-            <p className="auth-desc">
-              {isRegister 
-                ? 'Lengkapi data identitas untuk mendaftar sebagai peserta magang di lingkungan BRMP.' 
-                : 'Sistem presensi modern berbasis verifikasi kamera live selfie & titik koordinat GPS.'}
+            <div className="login-icon-top">
+              <div className="login-avatar-sq admin-sq">
+                <ShieldCheck size={38} strokeWidth={2.2} />
+              </div>
+            </div>
+
+            <h2 className="login-title">Portal Admin Hadirin</h2>
+            <p className="login-subtitle">
+              Pintu masuk khusus administrator & pembimbing presensi magang.
             </p>
+
+            <form onSubmit={handleAdminLogin} className="login-form">
+              <div className="login-field-wrap">
+                <label className="login-field-label">Email atau Username Admin</label>
+                <input
+                  type="text"
+                  className="login-field-input"
+                  placeholder="admin atau nadia.putri@hadirin.id"
+                  value={adminUsername}
+                  onChange={(e) => setAdminUsername(e.target.value)}
+                  autoFocus
+                  required
+                />
+              </div>
+
+              <div className="login-field-wrap">
+                <label className="login-field-label">Kata Sandi</label>
+                <input
+                  type="password"
+                  className="login-field-input"
+                  placeholder="Kata sandi admin"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="login-btn-submit"
+                disabled={submittingAdmin}
+              >
+                <span>{submittingAdmin ? 'Memverifikasi...' : 'Masuk sebagai Admin'}</span>
+              </button>
+            </form>
+
+            <div className="login-demo-bar">
+              <span className="login-demo-label">Akun Administrator:</span>
+              <div className="login-demo-chips">
+                <button 
+                  type="button" 
+                  className="login-demo-chip"
+                  onClick={() => {
+                    setAdminUsername('admin');
+                    setAdminPassword('admin123');
+                  }}
+                >
+                  Nadia Putri (admin / admin123)
+                </button>
+              </div>
+            </div>
+
+            <div className="login-footer-links">
+              <a href="index.php" className="login-help-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <ArrowLeft size={14} />
+                <span>Kembali ke Halaman Presensi Magang</span>
+              </a>
+            </div>
           </div>
-        </div>
-
-        {!isRegister ? (
-          /* FORM LOGIN */
-          <form onSubmit={handleLogin}>
-            <div className="form-group">
-              <label className="form-label">
-                <KeyRound size={15} style={{ color: 'var(--kementan-gold)' }} />
-                Nomor Induk Mahasiswa / Siswa (NIM)
-              </label>
-              <div className="input-icon-wrapper">
-                <UserCheck size={18} className="input-icon" />
-                <input
-                  type="text"
-                  value={nim}
-                  onChange={(e) => setNim(e.target.value)}
-                  placeholder="Masukkan NIM Anda (contoh: 2024001)"
-                  required
-                  autoFocus
-                  className="form-input"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary"
-            >
-              {loading ? (
-                <>
-                  <span className="pulse-dot" />
-                  <span>Memverifikasi NIM...</span>
-                </>
-              ) : (
-                <>
-                  <span>Masuk ke Portal Presensi</span>
-                  <ArrowRight size={18} />
-                </>
-              )}
-            </button>
-
-            {/* Quick Demo Selector */}
-            {demoStudents.length > 0 && (
-              <div className="demo-section">
-                <div className="demo-title">
-                  <Sparkles size={15} style={{ color: 'var(--kementan-gold)' }} />
-                  <span>Pilihan Akun Demo (Klik untuk mengisi cepat):</span>
-                </div>
-                <div className="demo-chips">
-                  {demoStudents.slice(0, 4).map((stu) => (
-                    <button
-                      key={stu.nim}
-                      type="button"
-                      onClick={() => selectDemoNim(stu.nim)}
-                      className="demo-chip"
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <div className="demo-chip-avatar">
-                          {stu.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff' }}>
-                            {stu.name}
-                          </div>
-                          <div style={{ fontSize: '0.72rem', color: 'var(--text-subtle)' }}>
-                            NIM: {stu.nim} • {stu.division}
-                          </div>
-                        </div>
-                      </div>
-                      <ChevronRight size={16} style={{ color: 'var(--text-subtle)', flexShrink: 0 }} />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div style={{ textAlign: 'center', marginTop: '1.6rem', fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
-              NIM belum terdaftar di sistem?{' '}
-              <button
-                type="button"
-                onClick={() => setIsRegister(true)}
-                style={{ 
-                  background: 'none', 
-                  border: 'none', 
-                  color: 'var(--kementan-gold)', 
-                  fontWeight: 700, 
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                  textUnderlineOffset: '3px'
-                }}
-              >
-                Daftar Magang Baru
-              </button>
-            </div>
-          </form>
         ) : (
-          /* FORM REGISTER */
-          <form onSubmit={handleRegister}>
-            <div className="form-group">
-              <label className="form-label">
-                <KeyRound size={15} style={{ color: 'var(--kementan-gold)' }} />
-                Nomor Induk Mahasiswa (NIM)
-              </label>
-              <div className="input-icon-wrapper">
-                <UserCheck size={18} className="input-icon" />
-                <input
-                  type="text"
-                  value={nim}
-                  onChange={(e) => setNim(e.target.value)}
-                  placeholder="Contoh: 2024005"
-                  required
-                  autoFocus
-                  className="form-input"
-                />
+          /* JIKA DI HALAMAN UTAMA UMUM (HANYA UNTUK ANAK MAGANG - PERSIS HALAMAN 1 PDF) */
+          !isRegister ? (
+            <div>
+              {/* Icon Top (Page 1 PDF) */}
+              <div className="login-icon-top">
+                <div className="login-avatar-sq">
+                  <UserCheck size={38} strokeWidth={2.2} />
+                </div>
+              </div>
+
+              {/* Title & Subtitle (Page 1 PDF) */}
+              <h1 className="login-title">Presensi Magang</h1>
+              <p className="login-subtitle">
+                Masuk untuk mencatat kehadiran dan aktivitas magangmu.
+              </p>
+
+              {/* Form Input NIM */}
+              <form onSubmit={handleStudentLogin} className="login-form">
+                <div className="login-field-wrap">
+                  <label className="login-field-label">Nomor Induk Mahasiswa</label>
+                  <input
+                    type="text"
+                    className="login-field-input"
+                    placeholder="Contoh: 231011401234"
+                    value={nim}
+                    onChange={(e) => setNim(e.target.value)}
+                    autoFocus
+                  />
+                  <p className="login-field-hint">
+                    Gunakan NIM yang terdaftar di sistem kampus.
+                  </p>
+                </div>
+
+                {/* Tombol Masuk -> (Page 1 PDF) */}
+                <button
+                  type="submit"
+                  className="login-btn-submit"
+                  disabled={submittingStudent}
+                >
+                  <span>{submittingStudent ? 'Memverifikasi NIM...' : '→ Masuk'}</span>
+                </button>
+              </form>
+
+              {/* Quick Demo Accounts */}
+              <div className="login-demo-bar">
+                <span className="login-demo-label">Pilih akun demo mahasiswa:</span>
+                <div className="login-demo-chips">
+                  <button type="button" className="login-demo-chip" onClick={() => setNim('231011401234')}>
+                    Raka Aditya (UI/UX)
+                  </button>
+                  <button type="button" className="login-demo-chip" onClick={() => setNim('231011401235')}>
+                    Siti Nurhaliza (Frontend)
+                  </button>
+                  <button type="button" className="login-demo-chip" onClick={() => setNim('231011401236')}>
+                    Bagas Pratama (Data)
+                  </button>
+                </div>
+              </div>
+
+              {/* Footer Links (Page 1 PDF) */}
+              <div className="login-footer-links">
+                <a
+                  href="#bantuan"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    alert('Silakan hubungi koordinator magang kampus atau admin pembimbing lapangan (Nadia Putri).');
+                  }}
+                  className="login-help-link"
+                >
+                  Kesulitan masuk? Hubungi koordinator magang
+                </a>
               </div>
             </div>
+          ) : (
+            /* PENDAFTARAN MAHASISWA BARU JIKA NIM BELUM ADA */
+            <div>
+              <div className="login-icon-top">
+                <div className="login-avatar-sq">
+                  <UserPlus size={36} strokeWidth={2.2} />
+                </div>
+              </div>
 
-            <div className="form-group">
-              <label className="form-label">
-                <User size={15} style={{ color: 'var(--kementan-gold)' }} />
-                Nama Lengkap
-              </label>
-              <div className="input-icon-wrapper">
-                <User size={18} className="input-icon" />
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Contoh: Muhammad Fikri"
-                  required
-                  className="form-input"
-                />
+              <h2 className="login-title">Daftar Akun Magang</h2>
+              <p className="login-subtitle">
+                Lengkapi data diri untuk registrasi presensi.
+              </p>
+
+              <form onSubmit={handleStudentRegister} className="login-form">
+                <div className="login-field-wrap">
+                  <label className="login-field-label">Nomor Induk Mahasiswa (NIM)</label>
+                  <input
+                    type="text"
+                    className="login-field-input"
+                    value={regNim}
+                    onChange={(e) => setRegNim(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="login-field-wrap">
+                  <label className="login-field-label">Nama Lengkap</label>
+                  <input
+                    type="text"
+                    className="login-field-input"
+                    placeholder="Contoh: Raka Aditya"
+                    value={regName}
+                    onChange={(e) => setRegName(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="login-field-wrap">
+                  <label className="login-field-label">Instansi / Universitas</label>
+                  <input
+                    type="text"
+                    className="login-field-input"
+                    value={regInstitution}
+                    onChange={(e) => setRegInstitution(e.target.value)}
+                  />
+                </div>
+
+                <div className="login-field-wrap">
+                  <label className="login-field-label">Divisi Magang</label>
+                  <input
+                    type="text"
+                    className="login-field-input"
+                    value={regDivision}
+                    onChange={(e) => setRegDivision(e.target.value)}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="login-btn-submit"
+                  disabled={submittingReg}
+                >
+                  <span>{submittingReg ? 'Mendaftarkan...' : 'Daftar & Masuk Sekarang'}</span>
+                </button>
+              </form>
+
+              <div className="login-footer-links">
+                <button
+                  type="button"
+                  className="login-link-btn"
+                  onClick={() => setIsRegister(false)}
+                >
+                  ← Kembali ke Login NIM
+                </button>
               </div>
             </div>
-
-            <div className="form-group">
-              <label className="form-label">
-                <Building size={15} style={{ color: 'var(--kementan-gold)' }} />
-                Asal Kampus / Sekolah
-              </label>
-              <div className="input-icon-wrapper">
-                <GraduationCap size={18} className="input-icon" />
-                <input
-                  type="text"
-                  value={institution}
-                  onChange={(e) => setInstitution(e.target.value)}
-                  placeholder="Contoh: Institut Pertanian Bogor (IPB)"
-                  className="form-input"
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">
-                <Briefcase size={15} style={{ color: 'var(--kementan-gold)' }} />
-                Divisi / Bidang Magang
-              </label>
-              <div className="input-icon-wrapper">
-                <Briefcase size={18} className="input-icon" />
-                <input
-                  type="text"
-                  value={division}
-                  onChange={(e) => setDivision(e.target.value)}
-                  placeholder="Contoh: Standardisasi Mutu Pertanian"
-                  className="form-input"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary"
-              style={{ marginTop: '0.5rem' }}
-            >
-              {loading ? (
-                <>
-                  <span className="pulse-dot" />
-                  <span>Mendaftarkan...</span>
-                </>
-              ) : (
-                <>
-                  <span>Daftar & Masuk Sekarang</span>
-                  <ArrowRight size={18} />
-                </>
-              )}
-            </button>
-
-            <div style={{ textAlign: 'center', marginTop: '1.6rem', fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
-              Sudah memiliki akun terdaftar?{' '}
-              <button
-                type="button"
-                onClick={() => setIsRegister(false)}
-                style={{ 
-                  background: 'none', 
-                  border: 'none', 
-                  color: 'var(--kementan-gold)', 
-                  fontWeight: 700, 
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                  textUnderlineOffset: '3px'
-                }}
-              >
-                Kembali ke Halaman Login
-              </button>
-            </div>
-          </form>
+          )
         )}
       </div>
     </div>

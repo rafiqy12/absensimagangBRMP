@@ -1,77 +1,92 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, Clock, LogOut, CheckCircle2, AlertCircle, History, Send, ShieldCheck, Sparkles } from 'lucide-react';
-import logoBrmp from './assets/logo-brmp.png';
-import CameraCapture from './components/CameraCapture';
-import LocationDetector from './components/LocationDetector';
-import AttendanceForm from './components/AttendanceForm';
+import { CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
+
+// Intern Components (Pages 1-6 PDF)
+import InternHome from './components/intern/InternHome';
+import InternAttendanceModal from './components/intern/InternAttendanceModal';
+import InternSuccessModal from './components/intern/InternSuccessModal';
+import InternHistory from './components/intern/InternHistory';
+import InternLogbook from './components/intern/InternLogbook';
+import InternProfile from './components/intern/InternProfile';
+import InternBottomNav from './components/intern/InternBottomNav';
+
+// Admin Components (Pages 7-11 PDF)
+import AdminLayout from './components/admin/AdminLayout';
+import AdminDashboard from './components/admin/AdminDashboard';
+import AdminStudents from './components/admin/AdminStudents';
+import AdminAttendance from './components/admin/AdminAttendance';
+import AdminLogbook from './components/admin/AdminLogbook';
+import AdminSettings from './components/admin/AdminSettings';
+
+// Login Modal
 import LoginModal from './components/LoginModal';
-import HistoryView from './components/HistoryView';
 
 export default function App() {
-  const [student, setStudent] = useState(null);
+  const [session, setSession] = useState(null); // { role: 'student' | 'admin', user: ... }
   const [checkingAuth, setCheckingAuth] = useState(true);
-  const [activeTab, setActiveTab] = useState('presensi'); // 'presensi' or 'riwayat'
 
-  // Presensi State
-  const [capturedPhoto, setCapturedPhoto] = useState(null);
-  const [locationData, setLocationData] = useState(null);
+  // Intern Flow State
+  const [internTab, setInternTab] = useState('beranda'); // 'beranda', 'riwayat', 'logbook', 'profil'
   const [todayStatus, setTodayStatus] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [attendanceModalType, setAttendanceModalType] = useState(null); // 'masuk' | 'pulang' | null
+  const [successResult, setSuccessResult] = useState(null);
+  const [offices, setOffices] = useState([]);
 
-  // Live Clock State
-  const [currentTime, setCurrentTime] = useState(new Date());
+  // Admin Flow State
+  const [adminMenu, setAdminMenu] = useState('dashboard'); // 'dashboard', 'peserta', 'presensi', 'logbook', 'pengaturan'
 
-  // Toast Notification State
+  // Toast Notification
   const [toast, setToast] = useState(null);
 
   const showToast = (message, type = 'info') => {
     setToast({ message, type });
-    setTimeout(() => {
-      setToast(null);
-    }, 4500);
+    setTimeout(() => setToast(null), 4500);
   };
 
-  // 1. Clock interval
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+  // Deteksi rute pintu masuk khusus admin (admin.php atau ?portal=admin)
+  const isAdminPortal = typeof window !== 'undefined' && (
+    Boolean(window.IS_ADMIN_PORTAL) || 
+    window.location.search.includes('admin') || 
+    window.location.pathname.includes('admin')
+  );
 
-  // 2. Check Auth Session
-  const checkAuth = async () => {
+  // 1. Check Active Session on Start
+  const checkSession = async () => {
     try {
       const res = await fetch('api.php?action=get_session', { credentials: 'include' });
       const data = await res.json();
-      if (data.authenticated && data.student) {
-        setStudent(data.student);
+      if (data.authenticated && data.role) {
+        setSession({
+          role: data.role,
+          user: data.user || data.student
+        });
       } else {
-        setStudent(null);
+        setSession(null);
       }
     } catch (e) {
-      console.error('Auth check error:', e);
+      console.error('Session check error:', e);
+      setSession(null);
     } finally {
       setCheckingAuth(false);
     }
   };
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  // Sync body background class for auth page (#F5F7F5)
-  useEffect(() => {
-    if (!student) {
-      document.body.classList.add('auth-bg');
-    } else {
-      document.body.classList.remove('auth-bg');
+  // 2. Fetch 3 Office Locations
+  const fetchOffices = async () => {
+    try {
+      const res = await fetch('api.php?action=get_office_locations', { credentials: 'include' });
+      const data = await res.json();
+      if (data.success && data.locations) {
+        setOffices(data.locations);
+      }
+    } catch (e) {
+      console.error('Fetch offices error:', e);
     }
-  }, [student]);
+  };
 
-  // 3. Fetch Today's Attendance Status
+  // 3. Fetch Today Attendance for Intern
   const fetchTodayStatus = async () => {
-    if (!student) return;
+    if (session?.role !== 'student') return;
     try {
       const res = await fetch('api.php?action=get_today', { credentials: 'include' });
       const data = await res.json();
@@ -79,267 +94,228 @@ export default function App() {
         setTodayStatus(data);
       }
     } catch (e) {
-      console.error('Fetch today status error:', e);
+      console.error('Fetch today error:', e);
     }
   };
 
   useEffect(() => {
-    if (student) {
+    checkSession();
+    fetchOffices();
+  }, []);
+
+  useEffect(() => {
+    if (session?.role === 'student') {
       fetchTodayStatus();
     }
-  }, [student]);
+  }, [session]);
 
-  // 4. Logout
+  // 4. Logout Handler
   const handleLogout = async () => {
     try {
       await fetch('api.php?action=logout', { credentials: 'include' });
-      setStudent(null);
-      setCapturedPhoto(null);
-      setLocationData(null);
-      showToast('Anda telah berhasil keluar dari sesi.', 'info');
-    } catch (e) {
-      showToast('Gagal logout dari sistem.', 'error');
-    }
-  };
-
-  // 5. Submit Attendance
-  const handleAttendanceSubmit = async (formData) => {
-    setSubmitting(true);
-    try {
-      const res = await fetch('api.php?action=submit_attendance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-        credentials: 'include'
-      });
-      const data = await res.json();
-      setSubmitting(false);
-
-      if (data.success) {
-        showToast(data.message, 'success');
-        // Reset selfie state so duplicate submission without fresh live shot is prevented
-        setCapturedPhoto(null);
-        fetchTodayStatus();
-        // Switch to history tab to show newly created attendance log
-        setTimeout(() => {
-          setActiveTab('riwayat');
-        }, 1200);
+      setSession(null);
+      setAttendanceModalType(null);
+      setSuccessResult(null);
+      showToast('Berhasil keluar dari akun.', 'info');
+      if (isAdminPortal) {
+        window.location.href = 'admin.php';
       } else {
-        showToast(data.message || 'Gagal mengirim presensi.', 'error');
+        window.location.href = 'index.php';
       }
-    } catch (err) {
-      setSubmitting(false);
-      showToast('Terjadi gangguan koneksi saat mengirim data presensi.', 'error');
+    } catch (e) {
+      showToast('Gagal logout.', 'error');
     }
   };
 
-  // Format Date in Indonesian
-  const formatIndoDate = (d) => {
-    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-    const months = [
-      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-    ];
-    return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-  };
-
-  const formatIndoTime = (d) => {
-    const pad = (n) => n.toString().padStart(2, '0');
-    return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())} WIB`;
-  };
-
+  // Loading Screen
   if (checkingAuth) {
     return (
-      <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <img 
-            src={logoBrmp} 
-            alt="Logo BRMP" 
-            style={{ width: 68, height: 68, objectFit: 'contain', marginBottom: '1.25rem', filter: 'drop-shadow(0 4px 14px rgba(234, 179, 8, 0.4))' }} 
-          />
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', color: 'var(--text-secondary)', fontSize: '0.92rem', fontWeight: 600 }}>
+      <div className="app-splash-screen">
+        <div className="app-splash-box">
+          <div className="app-splash-logo">H</div>
+          <h2 className="app-splash-title">{isAdminPortal ? 'Hadirin Administrator' : 'Hadirin Presensi'}</h2>
+          <div className="app-splash-loader">
             <span className="pulse-dot" />
-            <span>Menghubungkan ke Portal Presensi BRMP...</span>
+            <span>Memuat sistem presensi...</span>
           </div>
         </div>
       </div>
     );
   }
 
+  // Jika di pintu Admin tapi belum login sebagai admin
+  const showAdminLayout = isAdminPortal && session?.role === 'admin';
+  const showStudentLayout = !isAdminPortal && session?.role === 'student';
+
   return (
-    <div className="app-container">
-      {/* Toast Alert Notification */}
+    <div className="app-root">
+      {/* Toast Alert */}
       {toast && (
-        <div className={`alert-toast ${toast.type === 'success' ? 'toast-success' : toast.type === 'error' ? 'toast-error' : 'toast-info'}`}>
+        <div className={`alert-toast toast-${toast.type}`}>
           {toast.type === 'success' ? (
-            <CheckCircle2 size={20} style={{ color: 'var(--success-light)', flexShrink: 0 }} />
+            <CheckCircle2 size={18} />
           ) : toast.type === 'error' ? (
-            <AlertCircle size={20} style={{ color: 'var(--danger-light)', flexShrink: 0 }} />
+            <AlertCircle size={18} />
           ) : (
-            <Sparkles size={20} style={{ color: 'var(--kementan-gold)', flexShrink: 0 }} />
+            <Sparkles size={18} />
           )}
-          <span style={{ fontSize: '0.88rem', fontWeight: 600 }}>{toast.message}</span>
+          <span>{toast.message}</span>
         </div>
       )}
 
-      {/* Header Bar */}
-      <header className="app-header">
-        <div className="brand-wrapper">
-          <img 
-            src={logoBrmp} 
-            alt="Logo BRMP Kementerian Pertanian" 
-            className="brand-logo-img" 
-          />
-          <div>
-            <div className="brand-tag">KEMENTERIAN PERTANIAN RI</div>
-            <h1 className="brand-title">Presensi Magang BRMP</h1>
-            <p className="brand-subtitle">Badan Riset & Penerapan Standar Instrumen Pertanian</p>
-          </div>
-        </div>
-
-        {student && (
-          <div className="header-nav">
-            <button
-              type="button"
-              onClick={() => setActiveTab('presensi')}
-              className={`nav-pill ${activeTab === 'presensi' ? 'active' : ''}`}
-            >
-              <Send size={15} />
-              <span>Presensi</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab('riwayat')}
-              className={`nav-pill ${activeTab === 'riwayat' ? 'active' : ''}`}
-            >
-              <History size={15} />
-              <span>Riwayat</span>
-            </button>
-
-            <div className="user-info-pill">
-              <div className="user-avatar">
-                {student.name.charAt(0).toUpperCase()}
-              </div>
-              <div className="user-details">
-                <span className="user-name" title={student.name}>{student.name}</span>
-                <span className="user-nim">NIM: {student.nim}</span>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="btn-logout"
-              title="Keluar dari akun"
-            >
-              <LogOut size={14} />
-              <span>Keluar</span>
-            </button>
-          </div>
-        )}
-      </header>
-
-      {/* Main Content Area */}
-      {!student ? (
-        <LoginModal 
-          onLoginSuccess={(stu) => {
-            setStudent(stu);
-            setActiveTab('presensi');
+      {/* 1. BELUM LOGIN ATAU ROLE TIDAK SESUAI PINTU MASUK -> TAMPILKAN FORM LOGIN KHUSUS */}
+      {(!session || (isAdminPortal && session.role !== 'admin') || (!isAdminPortal && session.role !== 'student')) ? (
+        <LoginModal
+          isAdminPortal={isAdminPortal}
+          onLoginSuccess={(loginData) => {
+            setSession({
+              role: loginData.role,
+              user: loginData.data
+            });
+            if (loginData.role === 'student') {
+              setInternTab('beranda');
+            } else {
+              setAdminMenu('dashboard');
+            }
           }}
           showToast={showToast}
         />
-      ) : activeTab === 'presensi' ? (
-        /* Tab Presensi */
-        <div>
-          {/* Status & Clock Banner */}
-          <div className="status-banner">
-            <div>
-              <div className="greeting-tag">PORTAL PRESENSI RESMI</div>
-              <div className="greeting-name">
-                Selamat Bertugas, {student.name}!
-              </div>
-              <div className="greeting-meta">
-                <span>{student.institution}</span>
-                <span>•</span>
-                <span style={{ color: 'var(--kementan-gold)', fontWeight: 600 }}>{student.division}</span>
+      ) : showAdminLayout ? (
+        /* ========================================================= */
+        /* 2. ROLE ADMINISTRATOR -> DASHBOARD ADMIN (PAGES 7-11 PDF) */
+        /* ========================================================= */
+        <AdminLayout
+          admin={session.user}
+          activeMenu={adminMenu}
+          onSelectMenu={(menuId) => setAdminMenu(menuId)}
+          onLogout={handleLogout}
+          onSwitchToIntern={async () => {
+            window.location.href = 'index.php';
+          }}
+        >
+          {adminMenu === 'dashboard' && (
+            <AdminDashboard
+              admin={session.user}
+              onNavigateMenu={(menu) => setAdminMenu(menu)}
+            />
+          )}
+
+          {adminMenu === 'peserta' && (
+            <AdminStudents showToast={showToast} />
+          )}
+
+          {adminMenu === 'presensi' && (
+            <AdminAttendance showToast={showToast} />
+          )}
+
+          {adminMenu === 'logbook' && (
+            <AdminLogbook showToast={showToast} />
+          )}
+
+          {adminMenu === 'pengaturan' && (
+            <AdminSettings admin={session.user} showToast={showToast} />
+          )}
+        </AdminLayout>
+      ) : (
+        /* ========================================================= */
+        /* 3. ROLE ANAK MAGANG -> MOBILE APP LAYOUT (PAGES 1-6 PDF)  */
+        /* ========================================================= */
+        <div className="intern-viewport-wrapper">
+          <div className="intern-mobile-container">
+            {/* Status bar mock (09.41) */}
+            <div className="intern-statusbar">
+              <span className="intern-status-time">09.41</span>
+              <div className="intern-status-icons">
+                <span className="intern-bar-icon" />
+                <span className="intern-bar-icon" />
+                <span className="intern-bar-icon" />
               </div>
             </div>
 
-            <div>
-              <div className="clock-display">
-                <Clock size={20} style={{ color: 'var(--kementan-gold)' }} />
-                <span>{formatIndoTime(currentTime)}</span>
-              </div>
-              <div className="clock-date">
-                {formatIndoDate(currentTime)}
-              </div>
+            {/* Content per Tab */}
+            <div className="intern-screen-scroll">
+              {internTab === 'beranda' && (
+                <InternHome
+                  student={session.user}
+                  todayStatus={todayStatus}
+                  offices={offices}
+                  onOpenAttendance={(type) => setAttendanceModalType(type)}
+                  onNavigateTab={(tab) => setInternTab(tab)}
+                  onLogout={handleLogout}
+                />
+              )}
+
+              {internTab === 'riwayat' && (
+                <InternHistory
+                  student={session.user}
+                  showToast={showToast}
+                />
+              )}
+
+              {internTab === 'logbook' && (
+                <InternLogbook
+                  student={session.user}
+                  showToast={showToast}
+                />
+              )}
+
+              {internTab === 'profil' && (
+                <InternProfile
+                  student={session.user}
+                  onLogout={handleLogout}
+                  onSwitchToAdmin={() => {
+                    setSession({
+                      role: 'admin',
+                      user: {
+                        name: 'Nadia Putri',
+                        email: 'nadia.putri@hadirin.id',
+                        role: 'Administrator'
+                      }
+                    });
+                    setAdminMenu('dashboard');
+                    showToast('Beralih ke Portal Admin Hadirin.', 'info');
+                  }}
+                />
+              )}
             </div>
-          </div>
 
-          <div className="grid-cols-2">
-            {/* Kolom Kiri: Kamera Live & Lokasi GPS */}
-            <div className="card">
-              <div className="card-header">
-                <h3 className="card-title">
-                  <Camera size={20} style={{ color: 'var(--primary-light)' }} />
-                  <span>Kamera Selfie Langsung</span>
-                </h3>
-                <span className="badge badge-gold">
-                  Wajib Live
-                </span>
-              </div>
+            {/* Bottom Nav Bar (Pages 2, 5, 6 PDF) */}
+            <InternBottomNav
+              activeTab={internTab}
+              onSelectTab={(t) => setInternTab(t)}
+            />
 
-              {/* Kamera WebRTC Component */}
-              <CameraCapture
-                capturedPhoto={capturedPhoto}
-                onPhotoCaptured={(photo) => {
-                  setCapturedPhoto(photo);
-                  showToast('Foto selfie berhasil diambil!', 'success');
+            {/* Modal Presensi (Page 3 PDF) */}
+            {attendanceModalType && (
+              <InternAttendanceModal
+                type={attendanceModalType}
+                student={session.user}
+                onClose={() => setAttendanceModalType(null)}
+                onSubmitSuccess={(result) => {
+                  setAttendanceModalType(null);
+                  setSuccessResult(result);
+                  fetchTodayStatus();
                 }}
-                onRetake={() => {
-                  setCapturedPhoto(null);
+                showToast={showToast}
+              />
+            )}
+
+            {/* Modal Presensi Berhasil (Page 4 PDF) */}
+            {successResult && (
+              <InternSuccessModal
+                result={successResult}
+                onBackToHome={() => {
+                  setSuccessResult(null);
+                  setInternTab('beranda');
+                }}
+                onViewHistory={() => {
+                  setSuccessResult(null);
+                  setInternTab('riwayat');
                 }}
               />
-
-              {/* Detektor Lokasi GPS */}
-              <LocationDetector
-                locationData={locationData}
-                onLocationDetected={(loc) => {
-                  setLocationData(loc);
-                  showToast('Titik koordinat GPS berhasil dideteksi!', 'success');
-                }}
-              />
-            </div>
-
-            {/* Kolom Kanan: Form Presensi & Verifikasi */}
-            <div className="card">
-              <div className="card-header">
-                <h3 className="card-title">
-                  <ShieldCheck size={20} style={{ color: 'var(--kementan-gold)' }} />
-                  <span>Konfirmasi Data Presensi</span>
-                </h3>
-                <span style={{ fontSize: '0.74rem', color: 'var(--text-subtle)', fontWeight: 600 }}>
-                  Langkah Terakhir
-                </span>
-              </div>
-
-              <AttendanceForm
-                todayStatus={todayStatus}
-                capturedPhoto={capturedPhoto}
-                locationData={locationData}
-                onSubmit={handleAttendanceSubmit}
-                submitting={submitting}
-              />
-            </div>
+            )}
           </div>
         </div>
-      ) : (
-        /* Tab Riwayat */
-        <HistoryView 
-          currentNim={student.nim} 
-          showToast={showToast}
-        />
       )}
     </div>
   );

@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  absensi-brmp:
+    build: .
+    container_name: absensi-magang-brmp
+    restart: unless-stopped
+    ports:
+      - "8088:80"
+    volumes:
+      - ./data:/var/www/html/data
+      - ./uploads:/var/www/html/uploads
