@@ -19,7 +19,7 @@ export default function AdminStudents({ showToast }) {
   // Form State
   const [nim, setNim] = useState('');
   const [name, setName] = useState('');
-  const [institution, setInstitution] = useState('PT Nusantara Digital');
+  const [institution, setInstitution] = useState('BRMP DIY');
   const [division, setDivision] = useState('UI/UX Intern');
   const [supervisor, setSupervisor] = useState('Dian Pratiwi');
   const [status, setStatus] = useState('Aktif');
@@ -59,7 +59,7 @@ export default function AdminStudents({ showToast }) {
   const handleOpenAdd = () => {
     setNim('');
     setName('');
-    setInstitution('PT Nusantara Digital');
+    setInstitution('BRMP DIY');
     setDivision('UI/UX Intern');
     setSupervisor('Dian Pratiwi');
     setStatus('Aktif');
@@ -242,7 +242,7 @@ export default function AdminStudents({ showToast }) {
                         </div>
                       </div>
                     </td>
-                    <td>{st.institution || 'PT Nusantara Digital'}</td>
+                    <td>{st.institution || 'BRMP DIY'}</td>
                     <td>{st.supervisor || 'Dian Pratiwi'}</td>
                     <td>{st.last_activity_formatted || '23 Sep 2026'}</td>
                     <td>
@@ -325,7 +325,7 @@ export default function AdminStudents({ showToast }) {
                 <input
                   type="text"
                   className="intern-input"
-                  placeholder="Contoh: PT Nusantara Digital / IPB University"
+                  placeholder="Contoh: BRMP DIY / IPB University"
                   value={institution}
                   onChange={(e) => setInstitution(e.target.value)}
                 />

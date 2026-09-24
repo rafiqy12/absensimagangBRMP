@@ -210,7 +210,7 @@ try {
     $stmt = $pdo->query("SELECT COUNT(*) as count FROM students");
     if ($stmt->fetch()['count'] < 5) {
         $seedStudents = [
-            ['231011401234', 'Raka Aditya', 'PT Nusantara Digital', 'UI/UX Design', 'Dian Pratiwi', 'Aktif'],
+            ['231011401234', 'Raka Aditya', 'BRMP DIY', 'UI/UX Design', 'Dian Pratiwi', 'Aktif'],
             ['231011401235', 'Siti Nurhaliza', 'Dinas Kominfo', 'Frontend Development', 'Fajar Maulana', 'Aktif'],
             ['231011401236', 'Bagas Pratama', 'Bank Jateng', 'Data Analytics', 'Rina Kusuma', 'Aktif'],
             ['231011401237', 'Alya Ramadhani', 'Suara Merdeka', 'Content & Media', 'Yoga Prasetyo', 'Aktif'],

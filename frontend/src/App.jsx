@@ -20,6 +20,7 @@ import AdminSettings from './components/admin/AdminSettings';
 
 // Login Modal
 import LoginModal from './components/LoginModal';
+import brmpLogo from './assets/logo-brmp.png';
 
 export default function App() {
   const [session, setSession] = useState(null); // { role: 'student' | 'admin', user: ... }
@@ -132,8 +133,8 @@ export default function App() {
     return (
       <div className="app-splash-screen">
         <div className="app-splash-box">
-          <div className="app-splash-logo">H</div>
-          <h2 className="app-splash-title">{isAdminPortal ? 'Hadirin Administrator' : 'Hadirin Presensi'}</h2>
+          <img src={brmpLogo} alt="Logo BRMP DIY" className="app-splash-logo-img" />
+          <h2 className="app-splash-title">{isAdminPortal ? 'BRMP DIY · Portal Administrator' : 'BRMP DIY · Presensi Magang'}</h2>
           <div className="app-splash-loader">
             <span className="pulse-dot" />
             <span>Memuat sistem presensi...</span>

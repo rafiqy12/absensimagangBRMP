@@ -1,6 +1,6 @@
 -- =========================================================
--- Database SQL Dump for Presensi Magang BRMP
--- Generated at: 2026-09-24 00:59:27
+-- Database SQL Dump for Presensi Magang BRMP DIY
+-- Generated at: 2026-09-24 01:47:40
 -- =========================================================
 
 PRAGMA foreign_keys = OFF;
@@ -22,13 +22,13 @@ INSERT INTO `students` (`nim`, `name`, `institution`, `division`, `created_at`, 
 INSERT INTO `students` (`nim`, `name`, `institution`, `division`, `created_at`, `supervisor`, `status`) VALUES ('2024002', 'Siti Rahmawati', 'Universitas Gadjah Mada', 'Laboratorium Benih & Instrumen', '2026-09-22 08:33:43', 'Pembimbing Magang', 'Aktif');
 INSERT INTO `students` (`nim`, `name`, `institution`, `division`, `created_at`, `supervisor`, `status`) VALUES ('2024003', 'Rizky Pratama', 'Institut Teknologi Bandung', 'Teknologi Informasi & Data', '2026-09-22 08:33:43', 'Pembimbing Magang', 'Aktif');
 INSERT INTO `students` (`nim`, `name`, `institution`, `division`, `created_at`, `supervisor`, `status`) VALUES ('2024004', 'Putri Ayu Lestari', 'Politeknik Pembangunan Pertanian (Polbangtan)', 'Diseminasi Standar Pertanian', '2026-09-22 08:33:43', 'Pembimbing Magang', 'Aktif');
-INSERT INTO `students` (`nim`, `name`, `institution`, `division`, `created_at`, `supervisor`, `status`) VALUES ('231011401234', 'Raka Aditya', 'PT Nusantara Digital', 'UI/UX Design', '2026-09-23 03:56:39', 'Dian Pratiwi', 'Aktif');
+INSERT INTO `students` (`nim`, `name`, `institution`, `division`, `created_at`, `supervisor`, `status`) VALUES ('231011401234', 'Raka Aditya', 'BRMP DIY', 'UI/UX Design', '2026-09-23 03:56:39', 'Dian Pratiwi', 'Aktif');
 INSERT INTO `students` (`nim`, `name`, `institution`, `division`, `created_at`, `supervisor`, `status`) VALUES ('231011401235', 'Siti Nurhaliza', 'Dinas Kominfo', 'Frontend Development', '2026-09-23 03:56:39', 'Fajar Maulana', 'Aktif');
 INSERT INTO `students` (`nim`, `name`, `institution`, `division`, `created_at`, `supervisor`, `status`) VALUES ('231011401236', 'Bagas Pratama', 'Bank Jateng', 'Data Analytics', '2026-09-23 03:56:39', 'Rina Kusuma', 'Aktif');
 INSERT INTO `students` (`nim`, `name`, `institution`, `division`, `created_at`, `supervisor`, `status`) VALUES ('231011401237', 'Alya Ramadhani', 'Suara Merdeka', 'Content & Media', '2026-09-23 03:56:39', 'Yoga Prasetyo', 'Aktif');
 INSERT INTO `students` (`nim`, `name`, `institution`, `division`, `created_at`, `supervisor`, `status`) VALUES ('231011401238', 'Dimas Saputra', 'Nusantara Tech', 'Backend Development', '2026-09-23 03:56:39', 'Arif Wibowo', 'Nonaktif');
-INSERT INTO `students` (`nim`, `name`, `institution`, `division`, `created_at`, `supervisor`, `status`) VALUES ('123456789', 'fadli', 'PT Nusantara Digital', 'UI/UX Intern', '2026-09-23 07:31:10', 'Dian Pratiwi', 'Aktif');
-INSERT INTO `students` (`nim`, `name`, `institution`, `division`, `created_at`, `supervisor`, `status`) VALUES ('123', 'tes', 'PT Nusantara Digital', 'UI/UX Intern', '2026-09-23 08:06:30', 'Dian Pratiwi', 'Aktif');
+INSERT INTO `students` (`nim`, `name`, `institution`, `division`, `created_at`, `supervisor`, `status`) VALUES ('123456789', 'fadli', 'BRMP DIY', 'UI/UX Intern', '2026-09-23 07:31:10', 'Dian Pratiwi', 'Aktif');
+INSERT INTO `students` (`nim`, `name`, `institution`, `division`, `created_at`, `supervisor`, `status`) VALUES ('123', 'tes', 'BRMP DIY', 'UI/UX Intern', '2026-09-23 08:06:30', 'Dian Pratiwi', 'Aktif');
 
 -- ---------------------------------------------------------
 -- Table structure for `attendances`

@@ -105,6 +105,16 @@ input, select, textarea {
   box-shadow: 0 8px 16px rgba(15, 90, 71, 0.25);
 }
 
+.app-splash-logo-img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin: 0 auto 1.25rem;
+  display: block;
+  filter: drop-shadow(0 8px 20px rgba(15, 90, 71, 0.25));
+  animation: pulse-slow 2s infinite ease-in-out;
+}
+
 .app-splash-title {
   font-size: 1.25rem;
   font-weight: 700;
@@ -227,6 +237,51 @@ input, select, textarea {
   display: flex;
   justify-content: center;
   margin-bottom: 1.5rem;
+}
+
+.login-brand-logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.login-brand-logo-img {
+  width: 86px;
+  height: 86px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.1));
+  transition: transform 0.25s ease;
+}
+
+.login-brand-logo-img:hover {
+  transform: scale(1.05);
+}
+
+.login-company-tag {
+  display: inline-block;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--primary);
+  background: var(--primary-subtle);
+  padding: 0.25rem 0.85rem;
+  border-radius: var(--radius-full);
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
+}
+
+.intern-topbar-logo {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.08));
+}
+
+.intern-placement-logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
 
 .login-avatar-sq {
@@ -2184,16 +2239,21 @@ input, select, textarea {
 }
 
 .admin-logo-box {
-  width: 38px;
-  height: 38px;
-  background: var(--primary);
-  color: #FFFFFF;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.35rem;
-  font-weight: 800;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.admin-brand-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.12));
 }
 
 .admin-brand-name {

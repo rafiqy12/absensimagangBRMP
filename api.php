@@ -129,7 +129,7 @@ switch ($action) {
     case 'register':
         $nim = trim($_POST['nim'] ?? '');
         $name = trim($_POST['name'] ?? '');
-        $institution = trim($_POST['institution'] ?? 'PT Nusantara Digital');
+        $institution = trim($_POST['institution'] ?? 'BRMP DIY');
         $division = trim($_POST['division'] ?? 'UI/UX Intern');
         $supervisor = trim($_POST['supervisor'] ?? 'Dian Pratiwi');
 
@@ -804,7 +804,7 @@ switch ($action) {
     case 'admin_add_student':
         $nim = trim($_POST['nim'] ?? '');
         $name = trim($_POST['name'] ?? '');
-        $institution = trim($_POST['institution'] ?? 'PT Nusantara Digital');
+        $institution = trim($_POST['institution'] ?? 'BRMP DIY');
         $division = trim($_POST['division'] ?? 'Umum');
         $supervisor = trim($_POST['supervisor'] ?? 'Dian Pratiwi');
         $status = $_POST['status'] ?? 'Aktif';

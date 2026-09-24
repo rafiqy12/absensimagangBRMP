@@ -1,5 +1,6 @@
 import React from 'react';
 import { User, Building2, Briefcase, Award, LogOut, ShieldCheck, ChevronRight } from 'lucide-react';
+import brmpLogo from '../../assets/logo-brmp.png';
 
 export default function InternProfile({ student, onLogout, onSwitchToAdmin }) {
   return (
@@ -20,6 +21,15 @@ export default function InternProfile({ student, onLogout, onSwitchToAdmin }) {
         <span className="intern-profile-status-badge">Peserta Magang Aktif</span>
       </div>
 
+      {/* Perusahaan / Instansi Banner */}
+      <div className="intern-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem', marginBottom: '1rem', background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
+        <img src={brmpLogo} alt="Logo BRMP DIY" style={{ width: '44px', height: '44px', objectFit: 'contain' }} />
+        <div>
+          <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#166534' }}>BRMP DIY</h4>
+          <p style={{ margin: 0, fontSize: '0.78rem', color: '#15803D' }}>Balai Penerapan Standar Instrumen Pertanian</p>
+        </div>
+      </div>
+
       {/* Detail Information */}
       <div className="intern-card intern-profile-details">
         <div className="intern-profile-row">
@@ -27,8 +37,8 @@ export default function InternProfile({ student, onLogout, onSwitchToAdmin }) {
             <Building2 size={18} />
           </div>
           <div className="intern-prow-info">
-            <span className="intern-prow-label">Instansi / Kampus</span>
-            <span className="intern-prow-val">{student?.institution || 'PT Nusantara Digital'}</span>
+            <span className="intern-prow-label">Instansi / Penempatan</span>
+            <span className="intern-prow-val">{student?.institution || 'BRMP DIY'}</span>
           </div>
         </div>
 
@@ -40,7 +50,7 @@ export default function InternProfile({ student, onLogout, onSwitchToAdmin }) {
           </div>
           <div className="intern-prow-info">
             <span className="intern-prow-label">Divisi / Penempatan</span>
-            <span className="intern-prow-val">{student?.division || 'UI/UX Intern'}</span>
+            <span className="intern-prow-val">{student?.division || 'Peserta Magang'}</span>
           </div>
         </div>
 
@@ -52,7 +62,7 @@ export default function InternProfile({ student, onLogout, onSwitchToAdmin }) {
           </div>
           <div className="intern-prow-info">
             <span className="intern-prow-label">Pembimbing Lapangan</span>
-            <span className="intern-prow-val">{student?.supervisor || 'Dian Pratiwi'}</span>
+            <span className="intern-prow-val">{student?.supervisor || 'Pembimbing Magang'}</span>
           </div>
         </div>
       </div>

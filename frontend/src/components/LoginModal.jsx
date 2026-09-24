@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { UserCheck, ShieldCheck, ArrowRight, UserPlus, HelpCircle, KeyRound, Mail, Sparkles, Building2, ArrowLeft } from 'lucide-react';
+import brmpLogo from '../assets/logo-brmp.png';
 
 export default function LoginModal({ onLoginSuccess, showToast, isAdminPortal = false }) {
   // If in admin portal route, default role to admin; otherwise strictly student
@@ -13,14 +14,14 @@ export default function LoginModal({ onLoginSuccess, showToast, isAdminPortal = 
   // Student Register State
   const [regNim, setRegNim] = useState('');
   const [regName, setRegName] = useState('');
-  const [regInstitution, setRegInstitution] = useState('PT Nusantara Digital');
+  const [regInstitution, setRegInstitution] = useState('BRMP DIY');
   const [regDivision, setRegDivision] = useState('UI/UX Intern');
   const [regSupervisor, setRegSupervisor] = useState('Dian Pratiwi');
   const [submittingReg, setSubmittingReg] = useState(false);
 
   // Admin Login State
-  const [adminUsername, setAdminUsername] = useState('admin');
-  const [adminPassword, setAdminPassword] = useState('admin123');
+  const [adminUsername, setAdminUsername] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
   const [submittingAdmin, setSubmittingAdmin] = useState(false);
 
   // 1. Submit Student Login (Page 1 PDF)
@@ -135,13 +136,11 @@ export default function LoginModal({ onLoginSuccess, showToast, isAdminPortal = 
         {/* JIKA BERADA DI PINTU MASUK ADMIN (admin.php atau ?portal=admin) */}
         {isAdminPortal ? (
           <div>
-            <div className="login-icon-top">
-              <div className="login-avatar-sq admin-sq">
-                <ShieldCheck size={38} strokeWidth={2.2} />
-              </div>
+            <div className="login-brand-logo-wrap">
+              <img src={brmpLogo} alt="Logo BRMP DIY" className="login-brand-logo-img" />
             </div>
 
-            <h2 className="login-title">Portal Admin Hadirin</h2>
+            <h2 className="login-title">Portal Admin BRMP DIY</h2>
             <p className="login-subtitle">
               Pintu masuk khusus administrator & pembimbing presensi magang.
             </p>
@@ -152,7 +151,7 @@ export default function LoginModal({ onLoginSuccess, showToast, isAdminPortal = 
                 <input
                   type="text"
                   className="login-field-input"
-                  placeholder="admin atau nadia.putri@hadirin.id"
+                  placeholder="Masukkan username atau email admin"
                   value={adminUsername}
                   onChange={(e) => setAdminUsername(e.target.value)}
                   autoFocus
@@ -165,7 +164,7 @@ export default function LoginModal({ onLoginSuccess, showToast, isAdminPortal = 
                 <input
                   type="password"
                   className="login-field-input"
-                  placeholder="Kata sandi admin"
+                  placeholder="Masukkan kata sandi admin"
                   value={adminPassword}
                   onChange={(e) => setAdminPassword(e.target.value)}
                   required
@@ -181,23 +180,7 @@ export default function LoginModal({ onLoginSuccess, showToast, isAdminPortal = 
               </button>
             </form>
 
-            <div className="login-demo-bar">
-              <span className="login-demo-label">Akun Administrator:</span>
-              <div className="login-demo-chips">
-                <button 
-                  type="button" 
-                  className="login-demo-chip"
-                  onClick={() => {
-                    setAdminUsername('admin');
-                    setAdminPassword('admin123');
-                  }}
-                >
-                  Nadia Putri (admin / admin123)
-                </button>
-              </div>
-            </div>
-
-            <div className="login-footer-links">
+            <div className="login-footer-links" style={{ marginTop: '1.5rem' }}>
               <a href="index.php" className="login-help-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 <ArrowLeft size={14} />
                 <span>Kembali ke Halaman Presensi Magang</span>
@@ -208,15 +191,15 @@ export default function LoginModal({ onLoginSuccess, showToast, isAdminPortal = 
           /* JIKA DI HALAMAN UTAMA UMUM (HANYA UNTUK ANAK MAGANG - PERSIS HALAMAN 1 PDF) */
           !isRegister ? (
             <div>
-              {/* Icon Top (Page 1 PDF) */}
-              <div className="login-icon-top">
-                <div className="login-avatar-sq">
-                  <UserCheck size={38} strokeWidth={2.2} />
-                </div>
+              {/* Logo BRMP DIY & Title */}
+              <div className="login-brand-logo-wrap">
+                <img src={brmpLogo} alt="Logo BRMP DIY" className="login-brand-logo-img" />
               </div>
 
-              {/* Title & Subtitle (Page 1 PDF) */}
               <h1 className="login-title">Presensi Magang</h1>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <span className="login-company-tag">BRMP DIY</span>
+              </div>
               <p className="login-subtitle">
                 Masuk untuk mencatat kehadiran dan aktivitas magangmu.
               </p>
@@ -234,7 +217,7 @@ export default function LoginModal({ onLoginSuccess, showToast, isAdminPortal = 
                     autoFocus
                   />
                   <p className="login-field-hint">
-                    Gunakan NIM yang terdaftar di sistem kampus.
+                    Gunakan NIM yang terdaftar di sistem presensi BRMP DIY.
                   </p>
                 </div>
 
@@ -248,29 +231,13 @@ export default function LoginModal({ onLoginSuccess, showToast, isAdminPortal = 
                 </button>
               </form>
 
-              {/* Quick Demo Accounts */}
-              <div className="login-demo-bar">
-                <span className="login-demo-label">Pilih akun demo mahasiswa:</span>
-                <div className="login-demo-chips">
-                  <button type="button" className="login-demo-chip" onClick={() => setNim('231011401234')}>
-                    Raka Aditya (UI/UX)
-                  </button>
-                  <button type="button" className="login-demo-chip" onClick={() => setNim('231011401235')}>
-                    Siti Nurhaliza (Frontend)
-                  </button>
-                  <button type="button" className="login-demo-chip" onClick={() => setNim('231011401236')}>
-                    Bagas Pratama (Data)
-                  </button>
-                </div>
-              </div>
-
               {/* Footer Links (Page 1 PDF) */}
-              <div className="login-footer-links">
+              <div className="login-footer-links" style={{ marginTop: '1.5rem' }}>
                 <a
                   href="#bantuan"
                   onClick={(e) => {
                     e.preventDefault();
-                    alert('Silakan hubungi koordinator magang kampus atau admin pembimbing lapangan (Nadia Putri).');
+                    alert('Silakan hubungi koordinator magang kampus atau admin pembimbing lapangan di BRMP DIY.');
                   }}
                   className="login-help-link"
                 >
@@ -281,13 +248,14 @@ export default function LoginModal({ onLoginSuccess, showToast, isAdminPortal = 
           ) : (
             /* PENDAFTARAN MAHASISWA BARU JIKA NIM BELUM ADA */
             <div>
-              <div className="login-icon-top">
-                <div className="login-avatar-sq">
-                  <UserPlus size={36} strokeWidth={2.2} />
-                </div>
+              <div className="login-brand-logo-wrap">
+                <img src={brmpLogo} alt="Logo BRMP DIY" className="login-brand-logo-img" />
               </div>
 
               <h2 className="login-title">Daftar Akun Magang</h2>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <span className="login-company-tag">BRMP DIY</span>
+              </div>
               <p className="login-subtitle">
                 Lengkapi data diri untuk registrasi presensi.
               </p>

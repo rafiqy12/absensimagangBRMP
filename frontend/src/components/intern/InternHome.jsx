@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Camera, Calendar, FileEdit, MapPin, Bell, Clock, Building2, CheckCircle2, ChevronRight, X, LogOut } from 'lucide-react';
+import brmpLogo from '../../assets/logo-brmp.png';
 
 export default function InternHome({ student, todayStatus, onOpenAttendance, onNavigateTab, offices = [], onLogout }) {
   const [showLocationModal, setShowLocationModal] = useState(false);
@@ -38,9 +39,12 @@ export default function InternHome({ student, todayStatus, onOpenAttendance, onN
     <div className="intern-page">
       {/* Mobile Top App Bar */}
       <div className="intern-app-header">
-        <div>
-          <div className="intern-greeting-sub">Selamat pagi,</div>
-          <h2 className="intern-greeting-name">{student?.name || 'Peserta Magang'}</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <img src={brmpLogo} alt="Logo BRMP DIY" className="intern-topbar-logo" />
+          <div>
+            <div className="intern-greeting-sub">Selamat pagi,</div>
+            <h2 className="intern-greeting-name">{student?.name || 'Peserta Magang'}</h2>
+          </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button type="button" className="intern-icon-btn" title="Notifikasi" onClick={() => alert('Tidak ada notifikasi baru hari ini.')}>
@@ -130,14 +134,14 @@ export default function InternHome({ student, todayStatus, onOpenAttendance, onN
       <div className="intern-section">
         <div className="intern-placement-card">
           <div className="intern-placement-icon">
-            <Building2 size={24} />
+            <img src={brmpLogo} alt="BRMP DIY" className="intern-placement-logo-img" />
           </div>
           <div className="intern-placement-info">
             <h4 className="intern-placement-title">
-              {student?.institution || 'PT Nusantara Digital'}
+              {student?.institution === 'PT Nusantara Digital' ? 'BRMP DIY' : (student?.institution || 'BRMP DIY')}
             </h4>
             <p className="intern-placement-meta">
-              {student?.division || 'UI/UX Intern'} · Pembimbing: {student?.supervisor || 'Dian Pratiwi'}
+              {student?.division || 'Peserta Magang'} · Pembimbing: {student?.supervisor || 'Pembimbing Magang'}
             </p>
           </div>
         </div>

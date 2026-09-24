@@ -11,6 +11,7 @@ import {
   Download,
   ArrowLeft
 } from 'lucide-react';
+import brmpLogo from '../../assets/logo-brmp.png';
 
 export default function AdminLayout({ 
   admin, 
@@ -39,16 +40,16 @@ export default function AdminLayout({
 
   return (
     <div className="admin-container">
-      {/* Sidebar Hadirin (Pages 7-11 PDF) */}
+      {/* Sidebar (Pages 7-11 PDF) */}
       <aside className="admin-sidebar">
         <div className="admin-sidebar-top">
-          {/* Logo Hadirin */}
+          {/* Logo BRMP DIY */}
           <div className="admin-brand">
             <div className="admin-logo-box">
-              <span>H</span>
+              <img src={brmpLogo} alt="Logo BRMP DIY" className="admin-brand-logo-img" />
             </div>
             <div className="admin-brand-text">
-              <h1 className="admin-brand-name">Hadirin</h1>
+              <h1 className="admin-brand-name">BRMP DIY</h1>
               <span className="admin-brand-role">Admin Presensi</span>
             </div>
           </div>
