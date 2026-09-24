@@ -6,12 +6,11 @@ frontend/node_modules/
 uploads/*
 !uploads/.gitkeep
 
-# Database (keep folder structure)
-*.sqlite
+# Database (track sample database, ignore temp journals)
 *.sqlite-journal
-data/*.sqlite
 data/*.sqlite-journal
 !data/.gitkeep
+!data/database.sqlite
 
 # Logs & Temp
 *.log
