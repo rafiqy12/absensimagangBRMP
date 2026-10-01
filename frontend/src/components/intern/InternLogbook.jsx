@@ -9,7 +9,6 @@ import {
   Edit3, 
   Trash2, 
   Calendar, 
-  Clock, 
   BookOpen, 
   Search, 
   CheckCircle2, 
@@ -32,7 +31,6 @@ export default function InternLogbook({ student, showToast }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [durationHours, setDurationHours] = useState('7.5');
   const [submitting, setSubmitting] = useState(false);
 
   const fetchLogbooks = async () => {
@@ -59,7 +57,6 @@ export default function InternLogbook({ student, showToast }) {
     setTitle('');
     setDescription('');
     setDate(new Date().toISOString().split('T')[0]);
-    setDurationHours('7.5');
     setShowAddModal(true);
   };
 
@@ -68,8 +65,6 @@ export default function InternLogbook({ student, showToast }) {
     setTitle(item.title || '');
     setDescription(item.description || '');
     setDate(item.date || new Date().toISOString().split('T')[0]);
-    const hours = item.duration_minutes ? (item.duration_minutes / 60).toFixed(1).replace('.0', '') : '7.5';
-    setDurationHours(hours);
     setShowAddModal(true);
   };
 
@@ -106,7 +101,6 @@ export default function InternLogbook({ student, showToast }) {
     }
 
     setSubmitting(true);
-    const durationMinutes = Math.round(parseFloat(durationHours || 0) * 60);
 
     try {
       const res = await fetch('api.php?action=submit_logbook', {
@@ -116,7 +110,7 @@ export default function InternLogbook({ student, showToast }) {
           id: editingId,
           title: title.trim(),
           description: description.trim(),
-          duration_minutes: durationMinutes,
+          duration_minutes: 0,
           date: date,
           attachment_count: 0
         }),
@@ -148,13 +142,12 @@ export default function InternLogbook({ student, showToast }) {
       return;
     }
 
-    const headers = ['No', 'Tanggal', 'Judul Aktivitas', 'Rincian Kegiatan', 'Durasi'];
+    const headers = ['No', 'Tanggal', 'Judul Aktivitas', 'Rincian Kegiatan'];
     const rows = logbooks.map((item, idx) => [
       idx + 1,
       `"${item.date || ''}"`,
       `"${(item.title || '').replace(/"/g, '""')}"`,
-      `"${(item.description || '').replace(/"/g, '""')}"`,
-      `"${item.duration_str || (item.duration_minutes ? item.duration_minutes + ' menit' : '-')}"`
+      `"${(item.description || '').replace(/"/g, '""')}"`
     ]);
 
     const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
@@ -318,12 +311,7 @@ export default function InternLogbook({ student, showToast }) {
                 </p>
 
                 <div className="intern-lb-footer-row">
-                  {item.duration_str ? (
-                    <div className="intern-lb-duration">
-                      <Clock size={13} />
-                      <span>{item.duration_str}</span>
-                    </div>
-                  ) : <div />}
+                  <div />
 
                   {/* Tombol Aksi Edit & Hapus Kapan Saja */}
                   <div className="intern-lb-card-actions-clean">
@@ -426,22 +414,7 @@ export default function InternLogbook({ student, showToast }) {
                 />
               </div>
 
-              <div className="intern-form-group">
-                <label className="intern-label">Perkiraan Durasi Pengerjaan (Jam)</label>
-                <div className="intern-input-icon-wrap">
-                  <Clock size={16} className="intern-input-icon" />
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    max="24"
-                    className="intern-input intern-input-with-icon"
-                    placeholder="Contoh: 7.5"
-                    value={durationHours}
-                    onChange={(e) => setDurationHours(e.target.value)}
-                  />
-                </div>
-              </div>
+
 
               <div className="intern-modal-actions">
                 <button
@@ -626,16 +599,15 @@ export default function InternLogbook({ student, showToast }) {
                 <thead>
                   <tr>
                     <th style={{ width: '40px', textAlign: 'center' }}>No</th>
-                    <th style={{ width: '130px' }}>Hari & Tanggal</th>
-                    <th style={{ width: '220px' }}>Judul Aktivitas / Tugas</th>
+                    <th style={{ width: '140px' }}>Hari & Tanggal</th>
+                    <th style={{ width: '240px' }}>Judul Aktivitas / Tugas</th>
                     <th>Uraian Rincian Pekerjaan & Progres</th>
-                    <th style={{ width: '90px', textAlign: 'center' }}>Durasi</th>
                   </tr>
                 </thead>
                 <tbody>
                   {logbooks.length === 0 ? (
                     <tr>
-                      <td colSpan={5} style={{ textAlign: 'center', padding: '1.5rem' }}>
+                      <td colSpan={4} style={{ textAlign: 'center', padding: '1.5rem' }}>
                         Belum ada catatan aktivitas logbook.
                       </td>
                     </tr>
@@ -646,9 +618,6 @@ export default function InternLogbook({ student, showToast }) {
                         <td>{formatDateFormal(item.date)}</td>
                         <td><strong>{item.title}</strong></td>
                         <td style={{ whiteSpace: 'pre-line' }}>{item.description || '-'}</td>
-                        <td style={{ textAlign: 'center' }}>
-                          {item.duration_str || (item.duration_minutes ? `${item.duration_minutes}m` : '-')}
-                        </td>
                       </tr>
                     ))
                   )}

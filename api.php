@@ -672,7 +672,7 @@ switch ($action) {
             echo "\xEF\xBB\xBF";
 
             $output = fopen('php://output', 'w');
-            fputcsv($output, ['No', 'Tanggal', 'Judul Aktivitas', 'Rincian Kegiatan / Progres', 'Durasi (Menit)', 'Status']);
+            fputcsv($output, ['No', 'Tanggal', 'Judul Aktivitas', 'Rincian Kegiatan / Progres']);
 
             $no = 1;
             foreach ($logbooks as $lb) {
@@ -680,9 +680,7 @@ switch ($action) {
                     $no++,
                     $lb['date'],
                     $lb['title'],
-                    $lb['description'],
-                    $lb['duration_minutes'] ?: '-',
-                    $lb['status']
+                    $lb['description']
                 ]);
             }
             fclose($output);
