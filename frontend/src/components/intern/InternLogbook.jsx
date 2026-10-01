@@ -14,7 +14,8 @@ import {
   CheckCircle2, 
   Info,
   Save,
-  Check
+  Check,
+  ChevronRight
 } from 'lucide-react';
 import brmpLogo from '../../assets/logo-brmp.png';
 
@@ -25,6 +26,8 @@ export default function InternLogbook({ student, showToast }) {
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [showPrintModal, setShowPrintModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDetail, setSelectedDetail] = useState(null);
+  const [showInfoBanner, setShowInfoBanner] = useState(true);
 
   // Form State
   const [editingId, setEditingId] = useState(null);
@@ -83,6 +86,9 @@ export default function InternLogbook({ student, showToast }) {
         if (showAddModal && editingId === id) {
           setShowAddModal(false);
           setEditingId(null);
+        }
+        if (selectedDetail && selectedDetail.id === id) {
+          setSelectedDetail(null);
         }
         fetchLogbooks();
       } else {
@@ -242,19 +248,25 @@ export default function InternLogbook({ student, showToast }) {
         </button>
       </div>
 
-      {/* Banner Informasi Catatan Mandiri */}
-      <div className="intern-tip-banner intern-tip-banner-logbook">
-        <div className="intern-tip-icon">
-          <Info size={20} />
+      {/* Banner Informasi Catatan Mandiri (Ringkas & Dapat Ditutup) */}
+      {showInfoBanner && (
+        <div className="intern-tip-banner-slim">
+          <div className="intern-tip-slim-left">
+            <Info size={16} className="text-forest flex-shrink-0" />
+            <p className="intern-tip-slim-text">
+              <strong>Jurnal Mandiri:</strong> Catatan ini tidak perlu dicek mentor & dapat diunduh kapan saja.
+            </p>
+          </div>
+          <button 
+            type="button" 
+            className="intern-tip-slim-close"
+            onClick={() => setShowInfoBanner(false)}
+            title="Tutup pesan ini"
+          >
+            <X size={14} />
+          </button>
         </div>
-        <div className="intern-tip-content">
-          <p className="intern-tip-title">Catatan Pribadi Anak Magang</p>
-          <p className="intern-tip-text">
-            Logbook ini berfungsi sebagai jurnal harian mandiri untuk mendokumentasikan kegiatan & tugas kamu. 
-            Catatan ini tidak perlu diperiksa oleh mentor dan dapat kamu unduh kapan saja untuk keperluan laporan magang.
-          </p>
-        </div>
-      </div>
+      )}
 
       {/* Search Bar jika ada entri */}
       {logbooks.length > 0 && (
@@ -263,7 +275,7 @@ export default function InternLogbook({ student, showToast }) {
           <input
             type="text"
             className="intern-lb-search-input"
-            placeholder="Cari aktivitas atau catatan..."
+            placeholder="Cari aktivitas atau judul..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -279,7 +291,7 @@ export default function InternLogbook({ student, showToast }) {
         </div>
       )}
 
-      {/* Daftar Catatan Logbook */}
+      {/* Daftar Catatan Logbook Ramping & Hemat Tempat */}
       <div className="intern-logbook-list">
         {loading ? (
           <div className="intern-loading-box">Memuat catatan logbook...</div>
@@ -291,55 +303,105 @@ export default function InternLogbook({ student, showToast }) {
           </div>
         ) : (
           filteredLogbooks.map((item) => (
-            <div key={item.id} className="intern-card intern-logbook-card-clean">
-              <div className="intern-lb-header">
-                <div className="intern-lb-icon-box">
-                  <FileText size={18} />
-                </div>
-                <div className="intern-lb-meta">
-                  <div className="intern-lb-date-row">
-                    <Calendar size={13} className="text-muted" />
-                    <span className="intern-lb-date">{formatDateFormal(item.date)}</span>
-                  </div>
-                  <h4 className="intern-lb-title">{item.title}</h4>
+            <div 
+              key={item.id} 
+              className="intern-card intern-lb-compact-card"
+              onClick={() => setSelectedDetail(item)}
+            >
+              <div className="intern-lb-compact-leading">
+                <div className="intern-lb-compact-icon">
+                  <FileText size={16} />
                 </div>
               </div>
 
-              <div className="intern-lb-body">
-                <p className="intern-lb-desc">
-                  {item.description ? item.description : 'Tidak ada rincian kegiatan'}
-                </p>
-
-                <div className="intern-lb-footer-row">
-                  <div />
-
-                  {/* Tombol Aksi Edit & Hapus Kapan Saja */}
-                  <div className="intern-lb-card-actions-clean">
-                    <button
-                      type="button"
-                      className="intern-lb-btn-edit"
-                      onClick={() => handleOpenEdit(item)}
-                      title="Ubah Catatan"
-                    >
-                      <Edit3 size={14} />
-                      <span>Ubah</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="intern-lb-btn-delete"
-                      onClick={() => handleDelete(item.id)}
-                      title="Hapus Catatan"
-                    >
-                      <Trash2 size={14} />
-                      <span>Hapus</span>
-                    </button>
-                  </div>
+              <div className="intern-lb-compact-body">
+                <h4 className="intern-lb-compact-title">{item.title}</h4>
+                <div className="intern-lb-compact-meta">
+                  <Calendar size={12} className="text-muted" />
+                  <span>{formatDateFormal(item.date)}</span>
                 </div>
+              </div>
+
+              <div className="intern-lb-compact-trailing">
+                <ChevronRight size={18} className="intern-lb-chevron" />
               </div>
             </div>
           ))
         )}
       </div>
+
+      {/* =========================================================================
+          MODAL DETAIL AKTIVITAS (RINGKAS & RAPI)
+          ========================================================================= */}
+      {selectedDetail && (
+        <div className="intern-modal-backdrop" onClick={() => setSelectedDetail(null)}>
+          <div className="intern-modal-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="intern-modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <div className="intern-modal-icon-badge">
+                  <FileText size={18} />
+                </div>
+                <h3>Detail Aktivitas</h3>
+              </div>
+              <button
+                type="button"
+                className="intern-modal-close"
+                onClick={() => setSelectedDetail(null)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="intern-lb-detail-container">
+              <div className="intern-lb-detail-date-pill">
+                <Calendar size={13} />
+                <span>{formatDateFormal(selectedDetail.date)}</span>
+              </div>
+
+              <div className="intern-lb-detail-block">
+                <span className="intern-lb-detail-subtitle">Judul Aktivitas / Tugas</span>
+                <h2 className="intern-lb-detail-title-main">{selectedDetail.title}</h2>
+              </div>
+
+              <div className="intern-lb-detail-block">
+                <span className="intern-lb-detail-subtitle">Deskripsi & Rincian Kegiatan</span>
+                <div className="intern-lb-detail-description-box">
+                  {selectedDetail.description ? (
+                    <p style={{ margin: 0 }}>{selectedDetail.description}</p>
+                  ) : (
+                    <p className="text-muted" style={{ margin: 0, fontStyle: 'italic' }}>
+                      Tidak ada rincian kegiatan tambahan.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="intern-lb-detail-footer-actions">
+                <button
+                  type="button"
+                  className="intern-lb-btn-delete-action"
+                  onClick={() => handleDelete(selectedDetail.id)}
+                >
+                  <Trash2 size={15} />
+                  <span>Hapus</span>
+                </button>
+                <button
+                  type="button"
+                  className="intern-lb-btn-edit-action"
+                  onClick={() => {
+                    const item = selectedDetail;
+                    setSelectedDetail(null);
+                    handleOpenEdit(item);
+                  }}
+                >
+                  <Edit3 size={15} />
+                  <span>Ubah Aktivitas</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* =========================================================================
           MODAL TAMBAH / UBAH AKTIVITAS

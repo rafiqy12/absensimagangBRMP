@@ -1814,135 +1814,238 @@ input, select, textarea {
 .intern-logbook-list {
   display: flex;
   flex-direction: column;
-  gap: 0.95rem;
+  gap: 0.65rem;
   margin-bottom: 1.75rem;
 }
 
-.intern-logbook-card-clean {
-  padding: 1.15rem 1.25rem;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.intern-logbook-card-clean:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
-}
-
-.intern-lb-header {
+/* Slim info banner */
+.intern-tip-banner-slim {
   display: flex;
-  align-items: flex-start;
-  gap: 0.85rem;
-  margin-bottom: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: var(--radius-md);
+  padding: 0.6rem 0.85rem;
+  margin-bottom: 0.85rem;
 }
 
-.intern-lb-icon-box {
-  width: 38px;
-  height: 38px;
+.intern-tip-slim-left {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex: 1;
+}
+
+.intern-tip-slim-text {
+  font-size: 0.78rem;
+  color: #166534;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.intern-tip-slim-close {
+  background: transparent;
+  border: none;
+  color: #166534;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.intern-tip-slim-close:hover {
+  opacity: 1;
+}
+
+/* Compact Logbook List Item */
+.intern-lb-compact-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-lg);
+  background: #FFFFFF;
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.intern-lb-compact-card:hover {
+  border-color: var(--primary);
+  background: #F9FCFB;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 90, 71, 0.06);
+}
+
+.intern-lb-compact-card:active {
+  transform: scale(0.99);
+}
+
+.intern-lb-compact-leading {
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+}
+
+.intern-lb-compact-icon {
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-md);
-  background: var(--primary-subtle);
+  background: rgba(15, 90, 71, 0.08);
   color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
 
-.intern-lb-meta {
+.intern-lb-compact-body {
+  min-width: 0;
   flex: 1;
 }
 
-.intern-lb-date-row {
+.intern-lb-compact-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0 0 0.2rem 0;
+  line-height: 1.3;
+}
+
+.intern-lb-compact-meta {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  margin-bottom: 0.15rem;
-}
-
-.intern-lb-date {
   font-size: 0.75rem;
-  font-weight: 600;
   color: var(--text-muted);
+  font-weight: 500;
 }
 
-.intern-lb-title {
-  font-size: 0.98rem;
+.intern-lb-compact-trailing {
+  display: flex;
+  align-items: center;
+  padding-left: 0.5rem;
+  flex-shrink: 0;
+}
+
+.intern-lb-chevron {
+  color: #9CA3AF;
+  transition: transform 0.15s, color 0.15s;
+}
+
+.intern-lb-compact-card:hover .intern-lb-chevron {
+  color: var(--primary);
+  transform: translateX(2px);
+}
+
+/* Modal Detail Logbook */
+.intern-lb-detail-container {
+  padding: 0.25rem 0 0.5rem 0;
+}
+
+.intern-lb-detail-date-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(15, 90, 71, 0.08);
+  color: var(--primary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full);
+  margin-bottom: 1rem;
+}
+
+.intern-lb-detail-block {
+  margin-bottom: 1.25rem;
+}
+
+.intern-lb-detail-subtitle {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+}
+
+.intern-lb-detail-title-main {
+  font-size: 1.12rem;
   font-weight: 700;
   color: var(--text-main);
   line-height: 1.35;
+  margin: 0;
+  word-break: break-word;
 }
 
-.intern-lb-desc {
-  font-size: 0.86rem;
+.intern-lb-detail-description-box {
+  background: #F9FAFB;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.95rem 1.05rem;
+  font-size: 0.88rem;
+  line-height: 1.6;
   color: var(--text-body);
-  line-height: 1.5;
-  margin-bottom: 0.85rem;
   white-space: pre-line;
+  max-height: 250px;
+  overflow-y: auto;
+  word-break: break-word;
 }
 
-.intern-lb-footer-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 0.75rem;
-  border-top: 1px dashed var(--border-subtle);
+.intern-lb-detail-footer-actions {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
 }
 
-.intern-lb-duration {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  font-weight: 600;
-  background: #F3F4F6;
-  padding: 0.25rem 0.6rem;
-  border-radius: var(--radius-sm);
-}
-
-.intern-lb-card-actions-clean {
+.intern-lb-btn-delete-action {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-}
-
-.intern-lb-btn-edit {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.35rem 0.7rem;
-  background: #F0FDF4;
-  color: #166534;
-  border: 1px solid #BBF7D0;
-  border-radius: var(--radius-sm);
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.intern-lb-btn-edit:hover {
-  background: #DCFCE7;
-  color: #14532D;
-}
-
-.intern-lb-btn-delete {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.35rem 0.65rem;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.7rem 0.85rem;
   background: #FEF2F2;
   color: #DC2626;
   border: 1px solid #FECACA;
-  border-radius: var(--radius-sm);
-  font-size: 0.78rem;
+  border-radius: var(--radius-md);
+  font-size: 0.86rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
 }
 
-.intern-lb-btn-delete:hover {
+.intern-lb-btn-delete-action:hover {
   background: #FEE2E2;
-  color: #B91C1C;
+}
+
+.intern-lb-btn-edit-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.7rem 1.15rem;
+  background: var(--primary);
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.intern-lb-btn-edit-action:hover {
+  background: var(--primary-dark);
 }
 
 /* Modal Form Icons & Input Enhancements */
