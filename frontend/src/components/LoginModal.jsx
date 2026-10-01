@@ -197,10 +197,13 @@ export default function LoginModal({ onLoginSuccess, showToast, isAdminPortal = 
               </div>
 
               <h1 className="login-title">Presensi Magang</h1>
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem' }}>
                 <span className="login-company-tag">BRMP DIY</span>
+                <span style={{ fontSize: '0.76rem', color: '#166534', fontWeight: 600, textAlign: 'center' }}>
+                  Balai Besar Penerapan Modernisasi Pertanian D.I. Yogyakarta
+                </span>
               </div>
-              <p className="login-subtitle">
+              <p className="login-subtitle" style={{ marginTop: '0.65rem' }}>
                 Masuk untuk mencatat kehadiran dan aktivitas magangmu.
               </p>
 

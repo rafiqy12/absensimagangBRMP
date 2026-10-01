@@ -577,7 +577,8 @@ export default function InternLogbook({ student, showToast }) {
                   <img src={brmpLogo} alt="Logo Instansi" className="print-kop-logo-img" />
                 </div>
                 <div className="print-kop-text">
-                  <h3 className="print-kop-instansi">BALAI RISET DAN STANDARDISASI</h3>
+                  <h3 className="print-kop-instansi">BALAI BESAR PENERAPAN MODERNISASI PERTANIAN</h3>
+                  <h4 className="print-kop-subinstansi">DAERAH ISTIMEWA YOGYAKARTA</h4>
                   <h2 className="print-kop-title">LAPORAN LOGBOOK KEGIATAN MAGANG</h2>
                   <p className="print-kop-address">
                     Sistem Presensi & Jurnal Logbook Magang Mandiri · BRMP DIY

@@ -26,7 +26,7 @@ export default function InternProfile({ student, onLogout, onSwitchToAdmin }) {
         <img src={brmpLogo} alt="Logo BRMP DIY" style={{ width: '44px', height: '44px', objectFit: 'contain' }} />
         <div>
           <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#166534' }}>BRMP DIY</h4>
-          <p style={{ margin: 0, fontSize: '0.78rem', color: '#15803D' }}>Balai Penerapan Standar Instrumen Pertanian</p>
+          <p style={{ margin: 0, fontSize: '0.78rem', color: '#15803D' }}>Balai Besar Penerapan Modernisasi Pertanian Daerah Istimewa Yogyakarta</p>
         </div>
       </div>
 
