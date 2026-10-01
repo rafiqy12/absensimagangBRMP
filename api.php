@@ -577,7 +577,7 @@ switch ($action) {
         $durationMinutes = (int)($_POST['duration_minutes'] ?? 0);
         $date = $_POST['date'] ?? date('Y-m-d');
         $attachmentCount = (int)($_POST['attachment_count'] ?? 0);
-        $status = $_POST['status'] ?? 'Draft'; // 'Draft' atau 'Terkirim'
+        $status = 'Tersimpan';
 
         if (empty($title)) {
             echo json_encode(['success' => false, 'message' => 'Judul aktivitas logbook wajib diisi!']);
@@ -585,8 +585,8 @@ switch ($action) {
         }
 
         if ($id > 0) {
-            // Verifikasi kepemilikan dan status
-            $checkStmt = $pdo->prepare("SELECT id, status FROM logbooks WHERE id = ? AND student_nim = ?");
+            // Verifikasi kepemilikan
+            $checkStmt = $pdo->prepare("SELECT id FROM logbooks WHERE id = ? AND student_nim = ?");
             $checkStmt->execute([$id, $nim]);
             $existing = $checkStmt->fetch();
 
@@ -595,17 +595,12 @@ switch ($action) {
                 exit;
             }
 
-            if ($existing['status'] === 'Disetujui') {
-                echo json_encode(['success' => false, 'message' => 'Logbook yang sudah disetujui tidak dapat diubah lagi.']);
-                exit;
-            }
-
             $stmt = $pdo->prepare("UPDATE logbooks SET title = ?, description = ?, duration_minutes = ?, attachment_count = ?, status = ?, date = ? WHERE id = ? AND student_nim = ?");
             $stmt->execute([$title, $description, $durationMinutes, $attachmentCount, $status, $date, $id, $nim]);
 
             echo json_encode([
                 'success' => true,
-                'message' => ($status === 'Terkirim') ? 'Logbook berhasil dikirim ke pembimbing!' : 'Draf logbook berhasil diperbarui.'
+                'message' => 'Catatan logbook berhasil diperbarui.'
             ]);
             exit;
         }
@@ -616,7 +611,7 @@ switch ($action) {
 
         echo json_encode([
             'success' => true,
-            'message' => ($status === 'Terkirim') ? 'Logbook berhasil dikirim ke pembimbing!' : 'Draf logbook berhasil disimpan.'
+            'message' => 'Catatan logbook berhasil disimpan.'
         ]);
         exit;
 
@@ -633,7 +628,7 @@ switch ($action) {
             exit;
         }
 
-        $checkStmt = $pdo->prepare("SELECT id, status FROM logbooks WHERE id = ? AND student_nim = ?");
+        $checkStmt = $pdo->prepare("SELECT id FROM logbooks WHERE id = ? AND student_nim = ?");
         $checkStmt->execute([$id, $nim]);
         $existing = $checkStmt->fetch();
 
@@ -642,15 +637,59 @@ switch ($action) {
             exit;
         }
 
-        if ($existing['status'] === 'Disetujui') {
-            echo json_encode(['success' => false, 'message' => 'Logbook yang sudah disetujui tidak dapat dihapus.']);
-            exit;
-        }
-
         $delStmt = $pdo->prepare("DELETE FROM logbooks WHERE id = ? AND student_nim = ?");
         $delStmt->execute([$id, $nim]);
 
-        echo json_encode(['success' => true, 'message' => 'Draf logbook berhasil dihapus.']);
+        echo json_encode(['success' => true, 'message' => 'Catatan logbook berhasil dihapus.']);
+        exit;
+
+    case 'export_student_logbooks':
+        if (!isset($_SESSION['nim'])) {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+            exit;
+        }
+
+        $nim = $_SESSION['nim'];
+        $format = $_GET['format'] ?? 'csv';
+
+        // Ambil info mahasiswa
+        $stuStmt = $pdo->prepare("SELECT * FROM students WHERE nim = ?");
+        $stuStmt->execute([$nim]);
+        $student = $stuStmt->fetch();
+
+        $stmt = $pdo->prepare("SELECT * FROM logbooks WHERE student_nim = ? ORDER BY date ASC, created_at ASC");
+        $stmt->execute([$nim]);
+        $logbooks = $stmt->fetchAll();
+
+        if ($format === 'csv') {
+            $studentName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $student['name'] ?? 'Peserta');
+            $filename = "Logbook_Magang_{$studentName}_{$nim}.csv";
+
+            header('Content-Type: text/csv; charset=utf-8');
+            header("Content-Disposition: attachment; filename=\"{$filename}\"");
+
+            // BOM untuk UTF-8 di Excel
+            echo "\xEF\xBB\xBF";
+
+            $output = fopen('php://output', 'w');
+            fputcsv($output, ['No', 'Tanggal', 'Judul Aktivitas', 'Rincian Kegiatan / Progres', 'Durasi (Menit)', 'Status']);
+
+            $no = 1;
+            foreach ($logbooks as $lb) {
+                fputcsv($output, [
+                    $no++,
+                    $lb['date'],
+                    $lb['title'],
+                    $lb['description'],
+                    $lb['duration_minutes'] ?: '-',
+                    $lb['status']
+                ]);
+            }
+            fclose($output);
+            exit;
+        }
+
+        echo json_encode(['success' => true, 'logbooks' => $logbooks]);
         exit;
 
     // =========================================================================
@@ -677,8 +716,8 @@ switch ($action) {
         $attStmt->execute([$today]);
         $attStats = $attStmt->fetch();
 
-        // 3. Logbook Menunggu Review
-        $lbStmt = $pdo->query("SELECT COUNT(*) as pending_logbooks FROM logbooks WHERE status IN ('Menunggu', 'Terkirim')");
+        // 3. Total Logbook Peserta Tercatat
+        $lbStmt = $pdo->query("SELECT COUNT(*) as total_logbooks FROM logbooks");
         $lbStats = $lbStmt->fetch();
 
         // 4. Tren Kehadiran 7 Hari Terakhir
@@ -724,6 +763,8 @@ switch ($action) {
         $attendedCount = (int)($attStats['attended_today'] ?? 42);
         $percentHadir = round(($attendedCount / $activeTotal) * 100, 1);
 
+        $totalLogbooks = (int)($lbStats['total_logbooks'] ?? 0);
+
         echo json_encode([
             'success' => true,
             'kpi' => [
@@ -733,7 +774,8 @@ switch ($action) {
                 'percent_hadir' => $percentHadir,
                 'divisions_count' => (int)($stuStats['total_divisions'] ?? 3),
                 'late_today' => (int)($attStats['late_today'] ?? 5),
-                'pending_logbooks' => (int)($lbStats['pending_logbooks'] ?? 12)
+                'total_logbooks' => $totalLogbooks,
+                'pending_logbooks' => $totalLogbooks
             ],
             'trend_data' => $trendData,
             'recent_activities' => $recentActivities
@@ -951,7 +993,7 @@ switch ($action) {
     case 'admin_get_logbooks':
         $search = trim($_GET['search'] ?? '');
         $date = $_GET['date'] ?? '';
-        $status = $_GET['status'] ?? 'Menunggu'; // 'Menunggu', 'Semua', 'Disetujui', 'Revisi'
+        $status = $_GET['status'] ?? 'Semua'; // 'Semua', 'Disetujui', 'Revisi', dll.
 
         $query = "SELECT l.*, s.name as student_name, s.division, s.institution 
             FROM logbooks l 
@@ -998,11 +1040,12 @@ switch ($action) {
             }
         }
 
-        $pendingCount = (int)$pdo->query("SELECT COUNT(*) FROM logbooks WHERE status IN ('Menunggu', 'Terkirim')")->fetchColumn();
+        $totalCount = (int)$pdo->query("SELECT COUNT(*) FROM logbooks")->fetchColumn();
 
         echo json_encode([
             'success' => true,
-            'pending_count' => $pendingCount,
+            'total_count' => $totalCount,
+            'pending_count' => $totalCount,
             'logbooks' => $logbooks
         ]);
         exit;

@@ -25,7 +25,7 @@ export default function AdminLayout({
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'peserta', label: 'Peserta Magang', icon: Users },
     { id: 'presensi', label: 'Kelola Presensi', icon: CalendarCheck },
-    { id: 'logbook', label: 'Pemeriksaan Logbook', icon: BookOpenCheck },
+    { id: 'logbook', label: 'Logbook Peserta', icon: BookOpenCheck },
     { id: 'pengaturan', label: 'Pengaturan', icon: Settings },
   ];
 

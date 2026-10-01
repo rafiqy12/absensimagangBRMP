@@ -139,17 +139,17 @@ export default function AdminDashboard({ admin, onNavigateMenu }) {
           </div>
         </div>
 
-        {/* KPI 4: Logbook Menunggu */}
+        {/* KPI 4: Logbook Peserta */}
         <div className="admin-kpi-card">
           <div className="admin-kpi-top">
-            <div className="admin-kpi-icon-wrap icon-yellow">
+            <div className="admin-kpi-icon-wrap icon-blue">
               <BookOpen size={18} />
             </div>
-            <span className="admin-kpi-period">Hari ini</span>
+            <span className="admin-kpi-period">Semua</span>
           </div>
-          <div className="admin-kpi-val">{kpi.pending_logbooks}</div>
+          <div className="admin-kpi-val">{kpi.total_logbooks ?? kpi.pending_logbooks ?? 0}</div>
           <div className="admin-kpi-sub">
-            Logbook menunggu <span className="text-orange-bold">Perlu ditinjau</span>
+            Logbook peserta <span className="text-green-bold">Jurnal kegiatan</span>
           </div>
         </div>
       </div>
@@ -229,7 +229,7 @@ export default function AdminDashboard({ admin, onNavigateMenu }) {
                 <div className="admin-qr-icon">
                   <FileCheck2 size={18} />
                 </div>
-                <span>Periksa logbook</span>
+                <span>Lihat logbook peserta</span>
               </div>
               <ChevronRight size={18} className="text-gray" />
             </button>

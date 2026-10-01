@@ -1,0 +1,31 @@
+# ==============================================================================
+# .htaccess - Konfigurasi Server Produksi (Rumahweb / cPanel / Apache)
+# Domain: magang.brmpdiy.my.id
+# ==============================================================================
+
+RewriteEngine On
+
+# 1. Force HTTPS (WAJIB untuk WebRTC Kamera Selfie & Geolocation GPS di Production)
+RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1) [NC]
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 2. Amankan file database SQLite dan file sensitif dari akses publik
+<FilesMatch "\.(sqlite|sqlite3|db|sql|env|log)$">
+    Order allow,deny
+    Deny from all
+    Require all denied
+</FilesMatch>
+
+# Cegah akses langsung ke folder data/
+RewriteRule ^data/.*$ - [F,L]
+
+# 3. Matikan Directory Browsing (Mencegah pengunjung melihat daftar file)
+Options -Indexes
+
+# 4. Izinkan upload foto presensi ukuran wajar (maks 10MB)
+<IfModule mod_php.c>
+    php_value upload_max_filesize 10M
+    php_value post_max_size 10M
+    php_value max_execution_time 120
+</IfModule>
