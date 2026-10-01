@@ -3,12 +3,12 @@ import {
   UserCheck, 
   Users, 
   Clock, 
-  BookOpen, 
+  Building2, 
   Download, 
   ChevronRight, 
   UserPlus, 
   CheckCircle2, 
-  FileCheck2,
+  Settings,
   CalendarCheck
 } from 'lucide-react';
 
@@ -139,17 +139,17 @@ export default function AdminDashboard({ admin, onNavigateMenu }) {
           </div>
         </div>
 
-        {/* KPI 4: Logbook Peserta */}
+        {/* KPI 4: Divisi Magang */}
         <div className="admin-kpi-card">
           <div className="admin-kpi-top">
             <div className="admin-kpi-icon-wrap icon-blue">
-              <BookOpen size={18} />
+              <Building2 size={18} />
             </div>
-            <span className="admin-kpi-period">Semua</span>
+            <span className="admin-kpi-period">Penempatan</span>
           </div>
-          <div className="admin-kpi-val">{kpi.total_logbooks ?? kpi.pending_logbooks ?? 0}</div>
+          <div className="admin-kpi-val">{kpi.divisions_count} Divisi</div>
           <div className="admin-kpi-sub">
-            Logbook peserta <span className="text-green-bold">Jurnal kegiatan</span>
+            Unit penempatan <span className="text-muted">{kpi.total_students} terdaftar</span>
           </div>
         </div>
       </div>
@@ -223,13 +223,13 @@ export default function AdminDashboard({ admin, onNavigateMenu }) {
             <button
               type="button"
               className="admin-quick-row"
-              onClick={() => onNavigateMenu('logbook')}
+              onClick={() => onNavigateMenu('pengaturan')}
             >
               <div className="admin-qr-left">
                 <div className="admin-qr-icon">
-                  <FileCheck2 size={18} />
+                  <Settings size={18} />
                 </div>
-                <span>Lihat logbook peserta</span>
+                <span>Pengaturan sistem</span>
               </div>
               <ChevronRight size={18} className="text-gray" />
             </button>

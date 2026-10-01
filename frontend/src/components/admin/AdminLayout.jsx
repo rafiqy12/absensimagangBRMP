@@ -3,7 +3,6 @@ import {
   LayoutDashboard, 
   Users, 
   CalendarCheck, 
-  BookOpenCheck, 
   Settings, 
   LogOut, 
   HelpCircle,
@@ -25,7 +24,6 @@ export default function AdminLayout({
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'peserta', label: 'Peserta Magang', icon: Users },
     { id: 'presensi', label: 'Kelola Presensi', icon: CalendarCheck },
-    { id: 'logbook', label: 'Logbook Peserta', icon: BookOpenCheck },
     { id: 'pengaturan', label: 'Pengaturan', icon: Settings },
   ];
 
@@ -89,7 +87,7 @@ export default function AdminLayout({
           {/* Help Box */}
           <div className="admin-help-box">
             <h5 className="admin-help-title">Butuh bantuan?</h5>
-            <p className="admin-help-sub">Panduan pengelolaan presensi dan logbook.</p>
+            <p className="admin-help-sub">Panduan pengelolaan presensi & peserta magang.</p>
           </div>
 
           {/* Admin User Footer */}

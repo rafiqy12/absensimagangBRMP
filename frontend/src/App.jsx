@@ -15,7 +15,6 @@ import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './components/admin/AdminDashboard';
 import AdminStudents from './components/admin/AdminStudents';
 import AdminAttendance from './components/admin/AdminAttendance';
-import AdminLogbook from './components/admin/AdminLogbook';
 import AdminSettings from './components/admin/AdminSettings';
 
 // Login Modal
@@ -207,10 +206,6 @@ export default function App() {
 
           {adminMenu === 'presensi' && (
             <AdminAttendance showToast={showToast} />
-          )}
-
-          {adminMenu === 'logbook' && (
-            <AdminLogbook showToast={showToast} />
           )}
 
           {adminMenu === 'pengaturan' && (
