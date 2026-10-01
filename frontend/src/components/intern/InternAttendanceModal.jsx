@@ -295,10 +295,24 @@ export default function InternAttendanceModal({
       return;
     }
 
-    // Buat snapshot kanvas
+    // Buat snapshot kanvas dengan pembatasan dimensi proporsional (max 800px)
+    const maxDim = 800;
+    let targetW = video.videoWidth || 640;
+    let targetH = video.videoHeight || 480;
+
+    if (targetW > maxDim || targetH > maxDim) {
+      if (targetW >= targetH) {
+        targetH = Math.round((targetH / targetW) * maxDim);
+        targetW = maxDim;
+      } else {
+        targetW = Math.round((targetW / targetH) * maxDim);
+        targetH = maxDim;
+      }
+    }
+
     const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
+    canvas.width = targetW;
+    canvas.height = targetH;
     const ctx = canvas.getContext('2d');
 
     // Flip horizontally for selfie mirroring
@@ -306,7 +320,8 @@ export default function InternAttendanceModal({
     ctx.scale(-1, 1);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+    // Kompresi JPEG dengan kualitas seimbang (tajam, ukuran hemat ~100-250 KB)
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.78);
     setPhoto(dataUrl);
     setFaceDetected(true);
     setFaceRejectedWarning(null);

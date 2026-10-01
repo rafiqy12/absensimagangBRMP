@@ -37,6 +37,107 @@ function getAllSettings($pdo) {
     return $settings;
 }
 
+/**
+ * Helper untuk mengompres dan menyimpan base64 foto (JPEG)
+ * Memastikan ukuran foto selfie di bawah 1 MB (rata-rata 80 - 250 KB)
+ */
+function compressAndSaveBase64Image($base64Data, $destinationPath, $maxDim = 960, $quality = 75) {
+    if (empty($base64Data)) {
+        return false;
+    }
+
+    if (strpos($base64Data, ',') !== false) {
+        $parts = explode(',', $base64Data);
+        $decoded = base64_decode($parts[1]);
+    } else {
+        $decoded = base64_decode($base64Data);
+    }
+
+    if (!$decoded) {
+        return false;
+    }
+
+    // Jika library GD tersedia, lakukan re-scaling proporsional dan kompresi JPEG
+    if (function_exists('imagecreatefromstring') && function_exists('imagejpeg')) {
+        $srcImg = @imagecreatefromstring($decoded);
+        if ($srcImg !== false) {
+            $origW = imagesx($srcImg);
+            $origH = imagesy($srcImg);
+
+            $targetW = $origW;
+            $targetH = $origH;
+
+            // Batasi dimensi maksimal agar proporsional
+            if ($origW > $maxDim || $origH > $maxDim) {
+                if ($origW >= $origH) {
+                    $targetW = $maxDim;
+                    $targetH = (int)round(($origH / $origW) * $maxDim);
+                } else {
+                    $targetH = $maxDim;
+                    $targetW = (int)round(($origW / $origH) * $maxDim);
+                }
+            }
+
+            $dstImg = imagecreatetruecolor($targetW, $targetH);
+            imagecopyresampled($dstImg, $srcImg, 0, 0, 0, 0, $targetW, $targetH, $origW, $origH);
+
+            // Simpan gambar terkompresi
+            imagejpeg($dstImg, $destinationPath, $quality);
+
+            imagedestroy($srcImg);
+            imagedestroy($dstImg);
+            return true;
+        }
+    }
+
+    // Fallback: simpan raw jika GD tidak tersedia
+    return file_put_contents($destinationPath, $decoded) !== false;
+}
+
+/**
+ * Helper untuk mengompresi ulang file foto yang sudah tersimpan di server
+ */
+function compressExistingImageFile($filePath, $maxDim = 800, $quality = 72) {
+    if (!file_exists($filePath) || !is_file($filePath)) {
+        return false;
+    }
+
+    if (!function_exists('imagecreatefromstring') || !function_exists('imagejpeg')) {
+        return false;
+    }
+
+    $raw = @file_get_contents($filePath);
+    if (!$raw) return false;
+
+    $srcImg = @imagecreatefromstring($raw);
+    if ($srcImg === false) return false;
+
+    $origW = imagesx($srcImg);
+    $origH = imagesy($srcImg);
+
+    $targetW = $origW;
+    $targetH = $origH;
+
+    if ($origW > $maxDim || $origH > $maxDim) {
+        if ($origW >= $origH) {
+            $targetW = $maxDim;
+            $targetH = (int)round(($origH / $origW) * $maxDim);
+        } else {
+            $targetH = $maxDim;
+            $targetW = (int)round(($origW / $origH) * $maxDim);
+        }
+    }
+
+    $dstImg = imagecreatetruecolor($targetW, $targetH);
+    imagecopyresampled($dstImg, $srcImg, 0, 0, 0, 0, $targetW, $targetH, $origW, $origH);
+
+    imagejpeg($dstImg, $filePath, $quality);
+
+    imagedestroy($srcImg);
+    imagedestroy($dstImg);
+    return true;
+}
+
 switch ($action) {
 
     // =========================================================================
@@ -349,15 +450,13 @@ switch ($action) {
             $status = 'Perlu tinjauan';
         }
 
-        // Simpan File Foto Selfie
+        // Simpan File Foto Selfie dengan Kompresi Ringkas (< 1 MB)
         $relPhotoPath = 'uploads/placeholder.jpg';
-        if (!empty($photoData) && preg_match('/^data:image\/(jpeg|png|jpg);base64,/', $photoData)) {
-            $parts = explode(',', $photoData);
-            $decoded = base64_decode($parts[1]);
+        if (!empty($photoData)) {
             $safeNim = preg_replace('/[^a-zA-Z0-9]/', '', $nim);
             $filename = 'selfie_' . $safeNim . '_' . date('Ymd_His') . '_' . bin2hex(random_bytes(3)) . '.jpg';
             $destination = $uploadDir . '/' . $filename;
-            if (file_put_contents($destination, $decoded)) {
+            if (compressAndSaveBase64Image($photoData, $destination, 960, 75)) {
                 $relPhotoPath = 'uploads/' . $filename;
             }
         }
@@ -976,6 +1075,17 @@ switch ($action) {
         if (!$id) {
             echo json_encode(['success' => false, 'message' => 'ID Presensi tidak valid']);
             exit;
+        }
+
+        // Jika disetujui (di-acc / Terverifikasi), pastikan foto dikompresi lebih hemat
+        if ($status === 'Terverifikasi') {
+            $photoStmt = $pdo->prepare("SELECT photo_path FROM attendances WHERE id = ?");
+            $photoStmt->execute([$id]);
+            $currentPhoto = $photoStmt->fetchColumn();
+            if ($currentPhoto && $currentPhoto !== 'uploads/placeholder.jpg') {
+                $fullPhotoPath = __DIR__ . '/' . $currentPhoto;
+                compressExistingImageFile($fullPhotoPath, 800, 72);
+            }
         }
 
         $stmt = $pdo->prepare("UPDATE attendances SET status = ?, note = ? WHERE id = ?");
